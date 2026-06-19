@@ -13,6 +13,8 @@ public/sample.glb
 # Test/automation artifacts
 .playwright-mcp/
 spike-gate-result.png
+test-results/
+playwright-report/
 
 # Gitignored local copy of helmet-livery reference files (never edited, never committed)
 reference/

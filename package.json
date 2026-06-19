@@ -6,12 +6,19 @@
   "description": "Client-side, in-browser glTF/GLB optimizer (DRACO + WebP).",
   "license": "MIT",
   "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/copy-draco-wasm.mjs",
+    "spike:dev": "vite",
     "spike:make-sample": "node scripts/make-sample.mjs",
-    "spike:copy-wasm": "node scripts/copy-draco-wasm.mjs",
-    "dev": "vite",
-    "build": "vite build"
+    "spike:copy-wasm": "node scripts/copy-draco-wasm.mjs"
   },
   "dependencies": {
+    "@astrojs/preact": "^5.1.5",
     "@gltf-transform/core": "^4.4.0",
     "@gltf-transform/extensions": "^4.4.0",
     "@gltf-transform/functions": "^4.4.0",
@@ -20,9 +27,20 @@
     "@jsquash/png": "^3.1.1",
     "@jsquash/resize": "^2.1.1",
     "@jsquash/webp": "^1.5.0",
-    "draco3d": "^1.5.7"
+    "astro": "^6.4.8",
+    "comlink": "^4.4.2",
+    "draco3d": "^1.5.7",
+    "preact": "^10.29.2"
   },
   "devDependencies": {
-    "vite": "^8.0.16"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.0",
+    "@types/node": "^26.0.0",
+    "eslint": "^10.5.0",
+    "globals": "^17.6.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
   }
 }
