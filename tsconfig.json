@@ -4,6 +4,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["src", "e2e", "vitest.config.ts", "playwright.config.ts"],
+  "include": ["src", "test", "e2e", "vitest.config.ts", "playwright.config.ts"],
   "exclude": ["dist", "node_modules", ".astro", "spike"]
 }
