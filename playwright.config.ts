@@ -17,5 +17,10 @@ export default defineConfig({
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    // Astro 7 auto-daemonizes `astro dev` depending on how it was launched
+    // which makes Playwright see the webServer process "exit early".
+    // ASTRO_DEV_BACKGROUND is Astro's own foreground marker — setting it keeps the
+    // dev server attached to this process regardless of who launched it.
+    env: { ASTRO_DEV_BACKGROUND: '1' },
   },
 });
