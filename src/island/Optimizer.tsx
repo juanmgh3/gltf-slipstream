@@ -4,7 +4,7 @@
 // when the run path lands.
 
 import * as Comlink from 'comlink';
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type {
   ModelReport,
   OptimizeResult,
@@ -136,21 +136,75 @@ const PHASE_LABEL: Record<Progress['phase'], string> = {
   writing: 'Writing GLB',
 };
 
+// The three sectors (spec: "phases read as sectors"). Order fixes the
+// completed/live/pending derivation below — a phase never appears out of order.
+const SECTORS: Array<{ phase: Progress['phase']; label: string }> = [
+  { phase: 'textures', label: 'S1 TEXTURES' },
+  { phase: 'geometry', label: 'S2 GEOMETRY' },
+  { phase: 'writing', label: 'S3 WRITE' },
+];
+const SECTOR_ORDER = SECTORS.map((sector) => sector.phase);
+
 function OptimizingView({ progress }: { progress: Progress | null }) {
-  const fraction = progress && progress.total > 0 ? progress.done / progress.total : 0;
+  const currentIndex = progress ? SECTOR_ORDER.indexOf(progress.phase) : -1;
+  const ticker = progress
+    ? `${PHASE_LABEL[progress.phase]}${progress.label ? ` — ${progress.label}` : ''} (${progress.done}/${progress.total})`
+    : 'Starting worker';
+
   return (
     <section class="report optimizing" role="status" aria-label="Optimizing">
       <p class="rp-status">Optimizing</p>
-      <p class="op-phase">
-        {progress ? PHASE_LABEL[progress.phase] : 'Starting worker'}
-        {progress?.label ? ` — ${progress.label}` : ''}
-        {progress ? ` (${progress.done}/${progress.total})` : ''}
-      </p>
-      <div class="op-track" aria-hidden="true">
-        <div class="op-bar" style={{ width: `${Math.round(fraction * 100)}%` }} />
+      <div class="op-sectors">
+        {SECTORS.map((sector, i) => {
+          const isDone =
+            i < currentIndex ||
+            (i === currentIndex && progress !== null && progress.total > 0 && progress.done === progress.total);
+          const isLive = i === currentIndex && !isDone;
+          const fraction =
+            i < currentIndex ? 1 : i > currentIndex ? 0 : progress && progress.total > 0 ? progress.done / progress.total : 0;
+          return (
+            <div
+              key={sector.phase}
+              class={`op-sector${isLive ? ' is-live' : ''}${isDone ? ' is-done' : ''}`}
+            >
+              <p class="op-sector-label" data-testid="sector-label">
+                {sector.label}
+              </p>
+              <div class="op-sector-track" aria-hidden="true">
+                <div class="op-sector-fill" style={{ width: `${Math.round(fraction * 100)}%` }} />
+              </div>
+            </div>
+          );
+        })}
       </div>
+      <p class="op-ticker">{ticker}</p>
     </section>
   );
+}
+
+// Count-up on STATE ENTRY only: the effect keys off `target`, which is fixed
+// for the lifetime of a mounted instrument card (a fresh model remounts
+// LoadedView via the `key={loadSeq.current}` in Optimizer), so re-renders
+// caused by unrelated state (preset, overrides) never restart the animation.
+// prefers-reduced-motion snaps straight to the final value.
+function useCountUp(target: number, ms = 600): number {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / ms);
+      setValue(target * (1 - (1 - p) ** 3));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return value;
 }
 
 interface LoadedViewProps {
@@ -164,6 +218,13 @@ function LoadedView({ report, runError, onOptimize, onReset }: LoadedViewProps) 
   const { meshStats, textures, features, warnings } = report;
   const [preset, setPreset] = useState<QualityPreset>('balanced');
   const [overrides, setOverrides] = useState<OptimizeSettings['overrides']>({});
+
+  // The instrument row (T10): four figures count up once, on entry into this
+  // state — see useCountUp's mount-keyed effect above.
+  const vertsUp = useCountUp(meshStats.vertexCount);
+  const primsUp = useCountUp(meshStats.primitiveCount);
+  const texturesUp = useCountUp(textures.length);
+  const sizeUp = useCountUp(report.byteLength);
 
   // Merge a patch into one texture's override; drop cleared fields and empty
   // overrides so the composed settings only carry real user decisions.
@@ -184,47 +245,35 @@ function LoadedView({ report, runError, onOptimize, onReset }: LoadedViewProps) 
       <header class="rp-head">
         <p class="rp-status">Loaded</p>
         <h2 class="rp-name">{report.fileName}</h2>
-        <p class="rp-size">{formatBytes(report.byteLength)}</p>
+        <p class="rp-meta">
+          {meshStats.hasDraco ? 'Geometry already DRACO-compressed' : 'Geometry uncompressed source'}
+          {features.hasAnimation || features.hasSkinning || features.hasMorphTargets
+            ? ` · Detected: ${[
+                features.hasAnimation && 'animation',
+                features.hasSkinning && 'skinning',
+                features.hasMorphTargets && 'morph targets',
+              ]
+                .filter(Boolean)
+                .join(' · ')}`
+            : ''}
+        </p>
       </header>
 
-      <dl class="rp-stats">
-        <div class="rp-stat">
-          <dt>Vertices</dt>
-          <dd>{int.format(meshStats.vertexCount)}</dd>
-        </div>
-        <div class="rp-stat">
-          <dt>Primitives</dt>
-          <dd>{int.format(meshStats.primitiveCount)}</dd>
-        </div>
-        <div class="rp-stat">
-          <dt>Textures</dt>
-          <dd>{int.format(textures.length)}</dd>
-        </div>
-        <div class="rp-stat">
-          <dt>Geometry</dt>
-          <dd>{meshStats.hasDraco ? 'DRACO' : 'uncompressed'}</dd>
-        </div>
-      </dl>
-
-      {(features.hasAnimation || features.hasSkinning || features.hasMorphTargets) && (
-        <p class="rp-features">
-          Detected:{' '}
-          {[
-            features.hasAnimation && 'animation',
-            features.hasSkinning && 'skinning',
-            features.hasMorphTargets && 'morph targets',
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
-      )}
+      <div class="rp-instruments">
+        <Instrument label="vertices" value={int.format(Math.round(vertsUp))} />
+        <Instrument label="primitives" value={int.format(Math.round(primsUp))} />
+        <Instrument label="textures" value={int.format(Math.round(texturesUp))} />
+        <Instrument label="on disk" value={formatBytes(Math.round(sizeUp))} />
+      </div>
 
       {warnings.length > 0 && (
-        <ul class="rp-warnings">
+        <div class="rp-warnings" role="list" aria-label="Warnings">
           {warnings.map((warning) => (
-            <li key={warning}>{warning}</li>
+            <p class="rp-flag" role="listitem" key={warning}>
+              {warning}
+            </p>
           ))}
-        </ul>
+        </div>
       )}
 
       <Controls preset={preset} onPreset={setPreset} />
@@ -245,5 +294,14 @@ function LoadedView({ report, runError, onOptimize, onReset }: LoadedViewProps) 
         </button>
       </div>
     </section>
+  );
+}
+
+function Instrument({ label, value }: { label: string; value: string }) {
+  return (
+    <div class="rp-instrument">
+      <p class="rp-instrument-fig">{value}</p>
+      <p class="rp-instrument-label">{label}</p>
+    </div>
   );
 }

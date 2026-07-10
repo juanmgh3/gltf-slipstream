@@ -163,3 +163,31 @@ test.describe('design-elevation: texture timing table containment', () => {
     expect(box!.height).toBeLessThanOrEqual(viewportHeight);
   });
 });
+
+// T10 acceptance: phases read as sectors during a run — S1 TEXTURES · S2
+// GEOMETRY · S3 WRITE — and the run region still reports done afterward.
+// A slower-than-default dense fixture (more segments + a bigger texture)
+// keeps the worker busy long enough that the optimizing state is reliably
+// observable, not a one-frame flash the assertions could race past.
+test.describe('design-elevation: optimizing sectors', () => {
+  test('the three sector labels are visible during a run, then the run completes', async ({ page }) => {
+    await page.goto('/');
+    const input = page.getByTestId('file-input');
+    await expect(input).toBeEnabled();
+    await input.setInputFiles({
+      name: 'dense.glb',
+      mimeType: 'model/gltf-binary',
+      buffer: Buffer.from(await denseGlb(150, 1024)),
+    });
+    await expect(page.getByRole('region', { name: /model report/i })).toBeVisible();
+    await page.getByRole('button', { name: /optimize/i }).click();
+
+    const sectorLabels = page.getByTestId('sector-label');
+    await expect(sectorLabels).toHaveCount(3);
+    await expect(sectorLabels.nth(0)).toContainText(/S1/);
+    await expect(sectorLabels.nth(1)).toContainText(/S2/);
+    await expect(sectorLabels.nth(2)).toContainText(/S3/);
+
+    await expect(page.getByRole('region', { name: /results/i })).toBeVisible({ timeout: 30_000 });
+  });
+});

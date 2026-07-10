@@ -238,29 +238,46 @@
   letter-spacing: var(--ss-tracking-tight);
   overflow-wrap: anywhere;
 }
-.rp-size {
+.rp-meta {
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
   color: var(--ss-text-muted);
 }
 
-.rp-stats {
+/* ---- Instrument row (T10, "the garage"): identity figures as raw telemetry —
+   large Clash Display numerals on a lit surface card, counting up once on
+   state entry (see Optimizer.tsx's useCountUp). ---- */
+.rp-instruments {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ss-space-4);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ss-space-3);
 }
-.rp-stat dt {
+.rp-instrument {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-1);
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-hairline);
+  border-radius: var(--ss-radius-md);
+  box-shadow: var(--ss-edge-lit);
+  padding: var(--ss-space-3) var(--ss-space-3) var(--ss-space-2);
+}
+.rp-instrument-fig {
+  margin: 0;
+  font-family: var(--ss-font-display);
+  font-size: var(--ss-fs-h2);
+  font-weight: var(--ss-w-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ss-tracking-tight);
+  overflow-wrap: anywhere;
+}
+.rp-instrument-label {
+  margin: 0;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-kicker);
   letter-spacing: var(--ss-tracking-kicker);
   text-transform: uppercase;
-  color: var(--ss-text-label);
-}
-.rp-stat dd {
-  margin: 0;
-  font-family: var(--ss-font-display);
-  font-size: var(--ss-fs-h3);
-  font-weight: var(--ss-w-semibold);
+  color: var(--ss-text-muted);
 }
 
 .rp-features {
@@ -269,20 +286,24 @@
   color: var(--ss-text-muted);
 }
 
+/* Warnings as flags (T10, pillar 4 exception: amber marks these because they
+   are the one static thing the accent rule explicitly carves out for —
+   "elevated, flagged" reads differently than a plain error list). */
 .rp-warnings {
   display: flex;
   flex-direction: column;
   gap: var(--ss-space-2);
-  padding: 0;
-  list-style: none;
 }
-.rp-warnings li {
+.rp-flag {
+  margin: 0;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
   line-height: var(--ss-lh-snug);
-  color: var(--ss-warning);
-  padding-left: var(--ss-space-3);
-  border-left: 2px solid var(--ss-warning);
+  color: var(--ss-text-body);
+  background: var(--ss-cell-bg);
+  border-left: 3px solid var(--ss-accent);
+  border-radius: 0 var(--ss-radius-xs) var(--ss-radius-xs) 0;
+  padding: var(--ss-space-2) var(--ss-space-3);
 }
 
 /* ---- Controls: quality preset (T14) ---- */
@@ -567,25 +588,80 @@
   color: var(--ss-danger);
 }
 
-/* ---- Optimizing view (T15) ---- */
+/* ---- Optimizing view (T10: sectors) ----
+   Phases read as sectors (S1/S2/S3): a segmented track per sector, gapped so
+   each reads as its own instrument, rounded end-caps on the OUTER ends only
+   (the flex gap + per-position radius below is what gives the inner edges
+   their square meeting line). The live sector emits (glow-live + amber
+   fill); completed sectors settle flat (accent-soft); pending stays a
+   hairline outline. Labels sit OUTSIDE the track, in mono kickers. */
 .optimizing {
   justify-content: center;
-  gap: var(--ss-space-4);
+  gap: var(--ss-space-5);
 }
-.op-phase {
+.op-sectors {
+  display: flex;
+  gap: 3px;
+}
+.op-sector {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-2);
+  min-width: 0;
+}
+.op-sector-label {
+  margin: 0;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-muted);
+}
+.op-sector-track {
+  height: 8px;
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-hairline);
+  overflow: hidden;
+}
+/* Outer end-caps only: first sector rounds its left corners, last sector its
+   right corners; the two inner edges (between sectors) stay square. */
+.op-sector:first-child .op-sector-track {
+  border-radius: var(--ss-radius-pill) 0 0 var(--ss-radius-pill);
+}
+.op-sector:last-child .op-sector-track {
+  border-radius: 0 var(--ss-radius-pill) var(--ss-radius-pill) 0;
+}
+.op-sector-fill {
+  height: 100%;
+  width: 0;
+  background: var(--ss-accent-soft);
+  transition: width 0.2s ease;
+}
+.op-sector.is-live .op-sector-label {
+  color: var(--ss-accent-text);
+}
+.op-sector.is-live .op-sector-track {
+  border-color: var(--ss-accent-line);
+  box-shadow: var(--ss-glow-live);
+}
+.op-sector.is-live .op-sector-fill {
+  background: var(--ss-accent);
+}
+.op-sector.is-done .op-sector-fill {
+  background: var(--ss-accent-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .op-sector-fill {
+    transition: none;
+  }
+}
+.op-ticker {
+  text-align: center;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
   color: var(--ss-text-muted);
-}
-.op-track {
-  height: 4px;
-  background: var(--ss-cell-bg);
-  border: var(--ss-hairline-w) solid var(--ss-hairline);
-}
-.op-bar {
-  height: 100%;
-  background: var(--ss-accent);
-  transition: width 0.2s ease;
 }
 
 /* ---- Results view (T15) ---- */
