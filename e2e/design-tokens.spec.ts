@@ -16,7 +16,7 @@ test('--ss-* tokens apply to the shell', async ({ page }) => {
       accent: root.getPropertyValue('--ss-accent').trim(),
     };
   });
-  expect(styles.bg).toBe('rgb(38, 38, 38)'); // --ss-bg #262626
+  expect(styles.bg).toBe('rgb(39, 37, 34)'); // --ss-bg #272522 (warm charcoal)
   expect(styles.color).toBe('rgb(253, 253, 253)'); // --ss-text #FDFDFD
   expect(styles.fontFamily).toContain('Mona Sans');
   expect(styles.accent).toBe('#F5B84B');
