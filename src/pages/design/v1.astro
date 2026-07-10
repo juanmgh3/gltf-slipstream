@@ -1,0 +1,14 @@
+---
+// T4 stub: bare mount for the wipe prototype. T5 replaces this page with the
+// full V1 · Broadcast variant.
+import Base from '../../layouts/Base.astro';
+import { Wipe } from './_Wipe';
+---
+
+<Base title="Slipstream — design v1">
+  <main style="min-height: 100dvh; display: grid; place-items: center; padding: var(--ss-space-6);">
+    <div style="width: min(100%, 1200px);">
+      <Wipe client:load originalSrc="/demo/perseverance.glb" optimizedSrc="/demo/perseverance.glb" />
+    </div>
+  </main>
+</Base>
