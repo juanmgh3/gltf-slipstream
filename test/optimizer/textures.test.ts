@@ -1,28 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { init as initPngDecode } from '@jsquash/png/decode.js';
-import { init as initWebpEncode } from '@jsquash/webp/encode.js';
-import decodeWebp, { init as initWebpDecode } from '@jsquash/webp/decode.js';
-import { initResize } from '@jsquash/resize';
+import decodeWebp from '@jsquash/webp/decode.js';
 import { reencodeToWebP } from '../../src/optimizer/textures';
 import { solidPNG } from '../fixtures/generate';
+import { initJsquashForNode } from '../helpers/jsquash-node';
 
 // T10 acceptance: decode (png/jpeg/webp) → optional Lanczos3 downscale → WebP encode
-// honoring the T7 plan. In the browser @jsquash fetches its wasm; under Node the
-// codecs need explicit init from node_modules — test-only setup, not production code.
+// honoring the T7 plan.
 
-const wasm = async (relative: string) =>
-  WebAssembly.compile(await readFile(fileURLToPath(new URL(`../../node_modules/${relative}`, import.meta.url))));
-
-beforeAll(async () => {
-  await Promise.all([
-    initPngDecode(await wasm('@jsquash/png/codec/pkg/squoosh_png_bg.wasm')),
-    initWebpEncode((await wasm('@jsquash/webp/codec/enc/webp_enc.wasm')) as never),
-    initWebpDecode((await wasm('@jsquash/webp/codec/dec/webp_dec.wasm')) as never),
-    initResize(await wasm('@jsquash/resize/lib/resize/pkg/squoosh_resize_bg.wasm')),
-  ]);
-});
+beforeAll(initJsquashForNode);
 
 const isWebP = (bytes: Uint8Array) =>
   new TextDecoder().decode(bytes.subarray(0, 4)) === 'RIFF' &&
