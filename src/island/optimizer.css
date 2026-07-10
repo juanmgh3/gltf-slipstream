@@ -183,6 +183,11 @@
 /* ---- Model report (loaded state, same panel footprint) ---- */
 .report {
   min-height: min(440px, 56vh);
+  /* Containment backstop (T9): the texture table bounds itself internally, but
+     this caps the panel too so it can never exceed the viewport regardless of
+     how much other report content (warnings, features) stacks above the table. */
+  max-height: 96dvh;
+  overflow-y: auto;
   background: var(--ss-surface);
   border: var(--ss-hairline-w) solid var(--ss-border-strong);
   clip-path: polygon(
@@ -333,7 +338,7 @@
   outline-offset: 2px;
 }
 
-/* ---- Texture list (T14) ---- */
+/* ---- Texture list (T9: timing table) ---- */
 .textures {
   display: flex;
   flex-direction: column;
@@ -348,52 +353,133 @@
   text-transform: uppercase;
   color: var(--ss-text-label);
 }
-.tx-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+/* Bounded scroll region: fixed max-height regardless of row count is what kills
+   the over-extension bug — 24 rows scroll inside, they never grow the panel. */
+.tx-scroll {
+  max-height: clamp(280px, 44vh, 460px);
   overflow-y: auto;
+  border: var(--ss-hairline-w) solid var(--ss-hairline);
+  border-radius: var(--ss-radius-md);
+  background: var(--ss-card-bg);
+  box-shadow: var(--ss-edge-lit);
 }
-.tx-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'id plan'
-    'overrides overrides';
-  gap: var(--ss-space-1) var(--ss-space-4);
-  padding-block: var(--ss-space-3);
-  border-top: var(--ss-hairline-w) solid var(--ss-hairline);
-  transition: opacity 0.2s ease;
+.tx-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
 }
-.tx-row.is-excluded .tx-id,
-.tx-row.is-excluded .tx-plan {
-  opacity: 0.45;
+.tx-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  /* Opaque, matching the container: rows must scroll cleanly under the thead. */
+  background: var(--ss-card-bg);
+  text-align: left;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-muted);
+  padding: var(--ss-space-2) var(--ss-space-3);
+  border-bottom: var(--ss-hairline-w) solid var(--ss-border-strong);
 }
-.tx-id {
-  grid-area: id;
+.tx-table thead th.tx-col-dims,
+.tx-table thead th.tx-col-weight {
+  text-align: right;
+}
+.tx-table tbody td {
+  height: 36px;
+  padding: 0 var(--ss-space-3);
+  border-bottom: var(--ss-hairline-w) solid var(--ss-hairline);
+  color: var(--ss-text-muted);
+  vertical-align: middle;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.tx-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+/* Row hover (pillar 4): inset amber ring built from per-cell insets (box-shadow
+   doesn't reliably paint on <tr> across engines) + a 2px nudge right. */
+.tx-table tbody tr:hover td {
+  background: var(--ss-surface);
+  transform: translateX(2px);
+  box-shadow:
+    inset 0 1px 0 var(--ss-accent-line),
+    inset 0 -1px 0 var(--ss-accent-line);
+}
+.tx-table tbody tr:hover td:first-child {
+  box-shadow:
+    inset 0 1px 0 var(--ss-accent-line),
+    inset 0 -1px 0 var(--ss-accent-line),
+    inset 1px 0 0 var(--ss-accent-line);
+}
+.tx-table tbody tr:hover td:last-child {
+  box-shadow:
+    inset 0 1px 0 var(--ss-accent-line),
+    inset 0 -1px 0 var(--ss-accent-line),
+    inset -1px 0 0 var(--ss-accent-line);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tx-table tbody td {
+    transition: none;
+  }
+  .tx-table tbody tr:hover td {
+    transform: none;
+  }
+}
+/* Excluded is a true disabled state — the one place --ss-text-faint is allowed. */
+.tx-table tbody tr.is-excluded td {
+  color: var(--ss-text-faint);
+}
+.tx-name-cell {
   min-width: 0;
 }
 .tx-name {
-  font-weight: var(--ss-w-semibold);
+  display: block;
+  color: var(--ss-text-body);
+  font-weight: var(--ss-w-medium);
   overflow-wrap: anywhere;
 }
-.tx-meta {
-  font-family: var(--ss-font-mono);
+.tx-roles {
+  display: block;
   font-size: var(--ss-fs-kicker);
-  color: var(--ss-text-faint);
-}
-.tx-plan {
-  grid-area: plan;
-  align-self: center;
-  font-family: var(--ss-font-mono);
-  font-size: var(--ss-fs-small);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
   color: var(--ss-text-muted);
+}
+.tx-col-dims,
+.tx-col-weight {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tx-plan-cell {
+  white-space: nowrap;
+}
+/* Live marker (pillar 4): amber only when a user override diverges from the
+   preset default — never a fill, text only. */
+.tx-live-mark {
+  color: var(--ss-accent-text);
+  margin-right: var(--ss-space-1);
+}
+.tx-plan-tag {
+  display: inline-block;
+  /* Sharp corners = raw data, deliberately (pillar 3). */
+  border: var(--ss-hairline-w) solid var(--ss-border);
+  border-radius: var(--ss-radius-xs);
+  padding: 1px var(--ss-space-1);
+  color: var(--ss-text-muted);
+}
+.tx-overrides-cell {
   white-space: nowrap;
 }
 .tx-overrides {
-  grid-area: overrides;
   display: flex;
   align-items: center;
   gap: var(--ss-space-4);
@@ -421,6 +507,7 @@
   width: 5ch;
   background: var(--ss-cell-bg);
   border: var(--ss-hairline-w) solid var(--ss-border);
+  border-radius: var(--ss-radius-xs);
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
   padding: 2px var(--ss-space-1);
@@ -428,6 +515,7 @@
 .tx-maxsize select {
   background: var(--ss-cell-bg);
   border: var(--ss-hairline-w) solid var(--ss-border);
+  border-radius: var(--ss-radius-xs);
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
   padding: 2px var(--ss-space-1);

@@ -121,3 +121,45 @@ test.describe('design-elevation: compare wipe stage', () => {
     );
   });
 });
+
+// T9 acceptance: the texture list is a bounded timing table — 24 rows on the
+// demo model never over-extend the report panel; the scroll region (not the
+// panel, not the page) is what carries the overflow.
+test.describe('design-elevation: texture timing table containment', () => {
+  async function loadDemo(page: Page) {
+    await page.goto('/');
+    const demo = page.getByTestId('demo-button');
+    await expect(demo).toBeEnabled();
+    await demo.click();
+    await expect(page.getByRole('region', { name: /model report/i })).toBeVisible({ timeout: 60_000 });
+  }
+
+  test('the demo model renders all 24 texture rows', async ({ page }) => {
+    await loadDemo(page);
+    await expect(page.getByTestId('texture-row')).toHaveCount(24);
+  });
+
+  test('the scroll region overflows internally while staying bounded', async ({ page }) => {
+    await loadDemo(page);
+    const scroll = page.getByTestId('texture-scroll');
+    const { scrollHeight, clientHeight } = await scroll.evaluate((el) => ({
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+    }));
+    // 24 dense rows overflow the region...
+    expect(scrollHeight).toBeGreaterThan(clientHeight);
+    // ...but the region itself stays bounded well under the viewport, not just
+    // shy of it — this is what makes the overflow internal, not page-level.
+    const viewportHeight = page.viewportSize()?.height ?? 0;
+    expect(clientHeight).toBeLessThan(viewportHeight * 0.6);
+  });
+
+  test('the report panel fits within the viewport height', async ({ page }) => {
+    await loadDemo(page);
+    const report = page.getByRole('region', { name: /model report/i });
+    const box = await report.boundingBox();
+    const viewportHeight = page.viewportSize()?.height ?? 0;
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeLessThanOrEqual(viewportHeight);
+  });
+});
