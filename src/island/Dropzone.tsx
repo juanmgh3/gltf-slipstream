@@ -1,5 +1,6 @@
-// Load surface: drag-and-drop AND file picker (T13). Visual design carried over
-// from the T4 shell — the amber drag-over state marks the live moment (accent rule).
+// Load surface: drag-and-drop AND file picker (T13). The idle hero mass (T12):
+// oversized target, cursor-following spotlight on hover, amber solid border on
+// drag-over — the live moment (accent rule).
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 
@@ -21,6 +22,9 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
   // dragenter/dragleave fire for every child the cursor crosses; a depth counter
   // keeps the highlight stable until the pointer truly leaves the zone.
   const depth = useRef(0);
+  // Spotlight is written straight to the element's style, not to state — a
+  // pointermove-driven re-render for every frame would be wasteful.
+  const zoneRef = useRef<HTMLElement>(null);
 
   const take = (file: File | undefined) => {
     if (file && !busy) onFile(file);
@@ -28,9 +32,17 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
 
   return (
     <section
+      ref={zoneRef}
       class={`dropzone${isOver ? ' is-over' : ''}`}
       data-testid="dropzone"
       aria-label="Load a model"
+      onPointerMove={(e) => {
+        const zone = zoneRef.current;
+        if (!zone) return;
+        const rect = zone.getBoundingClientRect();
+        zone.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+        zone.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+      }}
       onDragEnter={(e) => {
         e.preventDefault();
         depth.current += 1;
@@ -65,8 +77,8 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
           <path d="m7 10 5 5 5-5" />
           <path d="M4 19h16" />
         </svg>
-        <p class="dz-title">{busy ? 'Reading model…' : 'Drop your model'}</p>
-        <p class="dz-hint">.glb or self-contained .gltf</p>
+        <p class="dz-title">{busy ? 'Reading model…' : 'Drop a .glb or .gltf'}</p>
+        <p class="dz-hint">or browse — self-contained .gltf works too</p>
         <input
           class="dz-input"
           type="file"
@@ -91,8 +103,11 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
           disabled={busy || !ready}
           onClick={onDemo}
         >
-          no model handy? try NASA&rsquo;s Perseverance rover
+          No model handy? Try the Perseverance rover
         </button>
+        <p class="dz-attribution" data-testid="demo-attribution">
+          NASA/JPL-Caltech · public domain (CC0)
+        </p>
         {error && (
           <p class="dz-error" role="alert">
             {error}

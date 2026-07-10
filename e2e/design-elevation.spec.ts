@@ -206,3 +206,45 @@ test.describe('design-elevation: results hero delta', () => {
     await expect(results.getByRole('link', { name: /download/i })).toBeVisible();
   });
 });
+
+// T12 acceptance: the page shell — permanent privacy kicker, below-fold
+// sections, demo attribution visible in idle, and no horizontal overflow
+// across the viewport range the direction commits to (375 through 2560).
+test.describe('design-elevation: page shell', () => {
+  test('the privacy kicker is visible on load', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('privacy-kicker')).toBeVisible();
+    await expect(page.getByTestId('privacy-kicker')).toContainText(/100% local/i);
+  });
+
+  test('the three below-fold sections exist by heading', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: /three sectors, one worker/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /nothing leaves your machine/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /honest machinery/i })).toBeVisible();
+  });
+
+  test('demo attribution is visible in the idle dropzone', async ({ page }) => {
+    await page.goto('/');
+    const attribution = page.getByTestId('demo-attribution');
+    await expect(attribution).toBeVisible();
+    await expect(attribution).toContainText(/NASA\/JPL-Caltech/i);
+    await expect(attribution).toContainText(/CC0/i);
+  });
+
+  for (const viewport of [
+    { width: 2560, height: 1440 },
+    { width: 1440, height: 900 },
+    { width: 375, height: 812 },
+  ]) {
+    test(`no horizontal overflow at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      const overflow = await page.evaluate(() => {
+        const doc = document.documentElement;
+        return doc.scrollWidth - doc.clientWidth;
+      });
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
+});

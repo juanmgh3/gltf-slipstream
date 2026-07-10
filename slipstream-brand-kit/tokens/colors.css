@@ -54,6 +54,7 @@
   --ss-glow-live:    0 0 28px -6px rgba(245, 184, 75, 0.35);    /* emits from live things  */
   --ss-shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.5);      /* true floats only        */
   --ss-accent-grad:  linear-gradient(180deg, #F5B84B, #E8A93C); /* hero figure text only   */
+  --ss-spotlight:    rgba(245, 184, 75, 0.12);                  /* cursor-follow glow, dropzone hover only */
 
   /* ---- Semantic aliases (what components consume) ---- */
   --ss-page-bg:        var(--ss-bg);
@@ -101,4 +102,5 @@
   --ss-glow-live:    0 0 28px -6px rgba(245, 184, 75, 0.45);
   --ss-shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.22);
   --ss-accent-grad:  linear-gradient(180deg, #F5B84B, #E8A93C);
+  --ss-spotlight:    rgba(245, 184, 75, 0.18);
 }

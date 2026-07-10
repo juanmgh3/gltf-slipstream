@@ -2,56 +2,53 @@
    Preact-rendered DOM), namespaced by .dropzone / .dz-* / .report / .rp-*.
    The dropzone treatment is the T4 shell design, moved here with the markup. */
 
-/* ---- Dropzone ---- */
+/* ---- Dropzone (T12: the idle hero mass — the largest thing on the page at
+   rest, so it gets generous padding and the tallest floor of any panel). ---- */
 .dropzone {
+  --spot-x: 50%;
+  --spot-y: 50%;
   position: relative;
-  min-height: min(440px, 56vh);
+  overflow: hidden;
+  min-height: min(560px, 64vh);
   background: var(--ss-surface);
-  border: var(--ss-hairline-w) solid var(--ss-border-strong);
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--ss-radius-xl)) 0,
-    100% var(--ss-radius-xl),
-    100% 100%,
-    0 100%
-  );
+  border: 1px dashed var(--ss-border-strong);
+  border-radius: var(--ss-radius-lg);
   display: flex;
   animation: island-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
   transition:
     background 0.25s ease,
     border-color 0.25s ease;
 }
-/* Inner dashed guide, drawn as its own layer so the notch stays crisp */
-.dropzone::before {
+/* Cursor-following spotlight (pillar 4): a scarce glow, pointer-driven not
+   animated, so it stays on even under prefers-reduced-motion — only its
+   fade transition is guarded below. */
+.dropzone::after {
   content: '';
   position: absolute;
-  inset: var(--ss-space-3);
-  border: 1px dashed var(--ss-border-strong);
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--ss-radius-lg)) 0,
-    100% var(--ss-radius-lg),
-    100% 100%,
-    0 100%
-  );
-  transition: border-color 0.25s ease;
+  inset: 0;
+  background: radial-gradient(200px circle at var(--spot-x) var(--spot-y), var(--ss-spotlight), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
   pointer-events: none;
+}
+.dropzone:hover::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dropzone::after {
+    transition: none;
+  }
 }
 
 .dropzone:hover {
   border-color: var(--ss-accent-line);
 }
-.dropzone:hover::before {
-  border-color: var(--ss-accent-line);
-}
 
-/* Drag-over = live: the amber moment */
+/* Drag-over = live: the amber moment, border goes solid. */
 .dropzone.is-over {
   background: var(--ss-accent-soft);
-  border-color: var(--ss-accent);
-}
-.dropzone.is-over::before {
-  border-color: var(--ss-accent);
+  border-style: solid;
+  border-color: var(--ss-accent-line);
 }
 .dropzone.is-over .dz-glyph {
   color: var(--ss-accent-text);
@@ -62,13 +59,14 @@
 }
 
 .dz-inner {
+  position: relative;
   margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: var(--ss-space-3);
-  padding: var(--ss-space-6);
+  padding: var(--ss-space-8) var(--ss-space-6);
 }
 
 .dz-glyph {
@@ -83,14 +81,15 @@
 
 .dz-title {
   font-family: var(--ss-font-display);
-  font-size: var(--ss-fs-h3);
+  font-size: var(--ss-fs-h2);
   font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-tight);
   transition: color 0.25s ease;
 }
 .dz-hint {
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
-  color: var(--ss-text-faint);
+  color: var(--ss-text-muted);
 }
 
 .dz-input {
@@ -163,6 +162,15 @@
   cursor: progress;
 }
 
+.dz-attribution {
+  margin-top: calc(-1 * var(--ss-space-2));
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-muted);
+}
+
 .dz-error {
   max-width: 44ch;
   font-family: var(--ss-font-mono);
@@ -177,7 +185,7 @@
   font-size: var(--ss-fs-kicker);
   letter-spacing: var(--ss-tracking-kicker);
   text-transform: uppercase;
-  color: var(--ss-text-faint);
+  color: var(--ss-text-muted);
 }
 
 /* ---- Model report (loaded state, same panel footprint) ---- */
@@ -325,7 +333,10 @@
 }
 .ct-options {
   display: flex;
+  gap: 2px;
+  padding: 2px;
   border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  border-radius: var(--ss-radius-pill);
 }
 .ct-option {
   position: relative;
@@ -333,11 +344,15 @@
   font-size: var(--ss-fs-small);
   color: var(--ss-text-muted);
   padding: var(--ss-space-1) var(--ss-space-3);
+  border-radius: var(--ss-radius-pill);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
-.ct-option + .ct-option {
-  border-left: var(--ss-hairline-w) solid var(--ss-border-strong);
+/* Inactive segments brighten on hover — a hint, never a fill (the fill is
+   reserved for the live/active segment, per the accent rule). */
+.ct-option:not(.is-active):hover {
+  color: var(--ss-text-body);
+  box-shadow: inset 0 0 0 1px var(--ss-accent-line);
 }
 /* The active preset is the live thing → accent fill with ink on top. */
 .ct-option.is-active {
