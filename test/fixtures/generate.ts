@@ -165,6 +165,27 @@ export async function animOnlyGlb(): Promise<Uint8Array> {
   return new NodeIO().writeBinary(doc);
 }
 
+/** Self-contained glTF JSON: buffer + image embedded as base64 data URIs — T5 must accept. */
+export function embeddedGltf(): Uint8Array {
+  const positions = new Float32Array([0, 0, 0, 1, 0, 0, 1, 1, 0]);
+  const bufferB64 = Buffer.from(positions.buffer).toString('base64');
+  const pngB64 = Buffer.from(solidPNG(8, 90, 90, 220)).toString('base64');
+  const gltf = {
+    asset: { version: '2.0' },
+    buffers: [{ uri: `data:application/octet-stream;base64,${bufferB64}`, byteLength: positions.byteLength }],
+    bufferViews: [{ buffer: 0, byteOffset: 0, byteLength: positions.byteLength }],
+    accessors: [{ bufferView: 0, componentType: 5126, count: 3, type: 'VEC3' }],
+    images: [{ uri: `data:image/png;base64,${pngB64}` }],
+    textures: [{ source: 0 }],
+    materials: [{ pbrMetallicRoughness: { baseColorTexture: { index: 0 } } }],
+    meshes: [{ primitives: [{ attributes: { POSITION: 0 }, material: 0 }] }],
+    nodes: [{ mesh: 0 }],
+    scenes: [{ nodes: [0] }],
+    scene: 0,
+  };
+  return new TextEncoder().encode(JSON.stringify(gltf));
+}
+
 /** glTF JSON referencing EXTERNAL .bin + image resources — the invalid input T5 must reject. */
 export function externalGltf(): Uint8Array {
   const gltf = {
