@@ -19,6 +19,7 @@ export default defineConfig({
         '@gltf-transform/core',
         '@gltf-transform/extensions',
         '@gltf-transform/functions',
+        '@google/model-viewer',
       ],
     },
     worker: { format: 'es' },

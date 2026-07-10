@@ -101,7 +101,14 @@ export function Optimizer() {
     return <OptimizingView progress={state.progress} />;
   }
   if (state.phase === 'done') {
-    return <Results fileName={state.report.fileName} result={state.result} onReset={() => setState(IDLE)} />;
+    return (
+      <Results
+        fileName={state.report.fileName}
+        file={state.file}
+        result={state.result}
+        onReset={() => setState(IDLE)}
+      />
+    );
   }
   return <Dropzone onFile={handleFile} busy={state.busy} error={state.error} />;
 }

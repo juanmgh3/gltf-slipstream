@@ -4,15 +4,17 @@
 
 import { useEffect, useMemo } from 'preact/hooks';
 import type { OptimizeResult } from '../optimizer/types';
+import { CompareViewer } from './CompareViewer';
 import { formatBytes } from './format';
 
 interface ResultsProps {
   fileName: string;
+  file: File;
   result: OptimizeResult;
   onReset: () => void;
 }
 
-export function Results({ fileName, result, onReset }: ResultsProps) {
+export function Results({ fileName, file, result, onReset }: ResultsProps) {
   const savings = 1 - result.outputByteLength / result.inputByteLength;
   const downloadName = `${fileName.replace(/\.(glb|gltf)$/i, '')}.optimized.glb`;
 
@@ -62,6 +64,8 @@ export function Results({ fileName, result, onReset }: ResultsProps) {
           </dd>
         </div>
       </dl>
+
+      <CompareViewer original={file} optimizedGlb={result.glb} />
 
       <div class="rp-actions">
         <a class="btn-accent" href={url} download={downloadName}>
