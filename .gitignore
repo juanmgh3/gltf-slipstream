@@ -11,6 +11,7 @@ public/mv-draco/
 public/sample.glb
 
 # Test/automation artifacts
+.artifacts/
 .playwright-mcp/
 spike-gate-result.png
 test-results/

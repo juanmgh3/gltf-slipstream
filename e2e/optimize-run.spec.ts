@@ -7,7 +7,9 @@ import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import draco3d from 'draco3d';
 import { test, expect, type Page } from '@playwright/test';
-import { denseGlb, plainGlb, solidPNG } from '../test/fixtures/generate';
+import { denseGlb, morphGlb, plainGlb, skinnedGlb, solidPNG } from '../test/fixtures/generate';
+import { glbJson } from '../test/helpers/glb';
+import { captureArtifact } from './artifacts';
 
 async function loadModel(page: Page, name: string, bytes: Uint8Array) {
   await page.goto('/');
@@ -26,14 +28,6 @@ async function runAndDownload(page: Page): Promise<Uint8Array> {
   return new Uint8Array(readFileSync(await download.path()));
 }
 
-/** The GLB's JSON chunk, for extension assertions (reading decodes DRACO away). */
-function glbJson(glb: Uint8Array): { extensionsUsed?: string[] } {
-  const view = new DataView(glb.buffer, glb.byteOffset);
-  expect(view.getUint32(0, true)).toBe(0x46546c67); // 'glTF'
-  const jsonLength = view.getUint32(12, true);
-  return JSON.parse(new TextDecoder().decode(glb.subarray(20, 20 + jsonLength)));
-}
-
 async function readGlb(glb: Uint8Array) {
   const io = new NodeIO()
     .registerExtensions(ALL_EXTENSIONS)
@@ -47,6 +41,7 @@ test('the run produces a smaller GLB with DRACO + WebP that re-decodes', async (
   const input = await denseGlb();
   await loadModel(page, 'dense.glb', input);
   const output = await runAndDownload(page);
+  captureArtifact('dense-optimized.glb', output); // read back in test/readback.test.ts (T18)
 
   expect(output.byteLength).toBeLessThan(input.byteLength);
   const extensions = glbJson(output).extensionsUsed ?? [];
@@ -78,6 +73,20 @@ test('an excluded texture keeps its exact bytes while the rest become WebP', asy
   expect(Buffer.from(base.getImage()!)).toEqual(Buffer.from(solidPNG(8, 200, 80, 80)));
   for (const name of ['normal', 'mr', 'emissive']) {
     expect(textures.get(name)!.getMimeType()).toBe('image/webp');
+  }
+});
+
+test('morph and skinned models survive the run without DRACO', async ({ page }) => {
+  // Byte-level half of the T11 animation/skinning gate: the written GLB — not just
+  // the document graph — must carry no KHR_draco_mesh_compression for these.
+  for (const [name, fixture] of [
+    ['morph', morphGlb],
+    ['skinned', skinnedGlb],
+  ] as const) {
+    await loadModel(page, `${name}.glb`, await fixture());
+    const output = await runAndDownload(page);
+    captureArtifact(`${name}-optimized.glb`, output); // read back in test/readback.test.ts (T18)
+    expect(glbJson(output).extensionsUsed ?? []).not.toContain('KHR_draco_mesh_compression');
   }
 });
 

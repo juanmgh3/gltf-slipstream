@@ -2,7 +2,9 @@
 // public/demo/perseverance.glb (CC0, NASA/JPL-Caltech) through the exact same
 // path as a dropped file, the run produces a smaller GLB, and both compare
 // viewers render it. This is the one E2E against a real heavyweight model.
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+import { captureArtifact } from './artifacts';
 
 // 213k verts + 24 textures: the run takes real time, unlike the synthetic fixtures.
 const RUN_TIMEOUT = 120_000;
@@ -36,6 +38,14 @@ test('click-to-try → optimize → compare, end to end on the demo model', asyn
   const results = page.getByRole('region', { name: /results/i });
   await expect(results).toBeVisible({ timeout: RUN_TIMEOUT });
   await expect(results.getByTestId('rs-savings')).toContainText('%');
+
+  // On a real heavyweight model the output must actually shrink; the artifact
+  // feeds the T18 shape-preservation read-back.
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('link', { name: /download/i }).click();
+  const output = new Uint8Array(readFileSync(await (await downloadPromise).path()));
+  captureArtifact('perseverance-optimized.glb', output);
+  expect(output.byteLength).toBeLessThan(readFileSync('public/demo/perseverance.glb').byteLength);
 
   // Both compare viewers present the model — re-rendering IS the decode check.
   await expect(page.locator('model-viewer')).toHaveCount(2);
