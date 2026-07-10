@@ -252,6 +252,163 @@
   border-left: 2px solid var(--ss-warning);
 }
 
+/* ---- Controls: quality preset (T14) ---- */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--ss-space-4);
+  border: 0;
+  padding: 0;
+}
+.ct-legend {
+  float: left; /* keep the legend inline with the options */
+  padding: 0;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-label);
+}
+.ct-options {
+  display: flex;
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+}
+.ct-option {
+  position: relative;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+  padding: var(--ss-space-1) var(--ss-space-3);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.ct-option + .ct-option {
+  border-left: var(--ss-hairline-w) solid var(--ss-border-strong);
+}
+/* The active preset is the live thing → accent fill with ink on top. */
+.ct-option.is-active {
+  background: var(--ss-accent);
+  color: var(--ss-accent-ink);
+  font-weight: var(--ss-w-semibold);
+}
+.ct-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+.ct-input:focus-visible {
+  opacity: 1;
+  appearance: none;
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- Texture list (T14) ---- */
+.textures {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-3);
+  min-height: 0;
+}
+.tx-heading {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-label);
+}
+.tx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.tx-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'id plan'
+    'overrides overrides';
+  gap: var(--ss-space-1) var(--ss-space-4);
+  padding-block: var(--ss-space-3);
+  border-top: var(--ss-hairline-w) solid var(--ss-hairline);
+  transition: opacity 0.2s ease;
+}
+.tx-row.is-excluded .tx-id,
+.tx-row.is-excluded .tx-plan {
+  opacity: 0.45;
+}
+.tx-id {
+  grid-area: id;
+  min-width: 0;
+}
+.tx-name {
+  font-weight: var(--ss-w-semibold);
+  overflow-wrap: anywhere;
+}
+.tx-meta {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  color: var(--ss-text-faint);
+}
+.tx-plan {
+  grid-area: plan;
+  align-self: center;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+  white-space: nowrap;
+}
+.tx-overrides {
+  grid-area: overrides;
+  display: flex;
+  align-items: center;
+  gap: var(--ss-space-4);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  color: var(--ss-text-label);
+}
+.tx-exclude {
+  display: flex;
+  align-items: center;
+  gap: var(--ss-space-2);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: var(--ss-tracking-kicker);
+}
+.tx-exclude input {
+  accent-color: var(--ss-accent);
+}
+.tx-quality {
+  display: flex;
+  align-items: center;
+  gap: var(--ss-space-1);
+}
+.tx-quality input {
+  width: 5ch;
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-border);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  padding: 2px var(--ss-space-1);
+}
+.tx-maxsize select {
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-border);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  padding: 2px var(--ss-space-1);
+}
+.tx-quality input:disabled,
+.tx-maxsize select:disabled {
+  opacity: 0.4;
+}
+
 .rp-reset {
   margin-top: auto;
   align-self: flex-start;

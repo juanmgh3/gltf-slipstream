@@ -10,6 +10,16 @@ export default defineConfig({
   vite: {
     optimizeDeps: {
       exclude: ['@jsquash/webp', '@jsquash/png', '@jsquash/jpeg', '@jsquash/resize'],
+      // Pre-bundle the worker's deps at server start. Without this, the first
+      // analyze on a cold dev server discovers them lazily and Vite full-reloads
+      // the page ("optimized dependencies changed"), dropping the loaded model.
+      include: [
+        'comlink',
+        'draco3d',
+        '@gltf-transform/core',
+        '@gltf-transform/extensions',
+        '@gltf-transform/functions',
+      ],
     },
     worker: { format: 'es' },
   },

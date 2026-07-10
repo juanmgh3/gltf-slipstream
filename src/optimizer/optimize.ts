@@ -10,13 +10,12 @@ import type { Document } from '@gltf-transform/core';
 import { EXTTextureWebP } from '@gltf-transform/extensions';
 import { dedup, draco, prune, weld } from '@gltf-transform/functions';
 import { createWebIO } from './draco';
-import { DRACO_OPTS, roleDefaults, type WebPPlan } from './defaults';
+import { DRACO_OPTS, planForTexture } from './defaults';
 import { detectTextureRoles } from './roles';
 import { reencodeToWebP } from './textures';
-import type { ModelReport, OptimizeResult, OptimizeSettings, Progress, TextureRole } from './types';
+import type { ModelReport, OptimizeResult, OptimizeSettings, Progress } from './types';
 
 const DECODABLE = ['image/png', 'image/jpeg', 'image/webp'];
-const COLOR_ROLES: TextureRole[] = ['baseColor', 'emissive'];
 
 export function shouldCompressGeometry(report: Pick<ModelReport, 'features'>): boolean {
   return !report.features.hasMorphTargets && !report.features.hasSkinning;
@@ -58,7 +57,7 @@ export async function optimizeDocument(
       action = 'kept';
     } else {
       const textureRoles = [...(roles.get(texture) ?? [])];
-      const plan = buildPlan(textureRoles, settings.preset, override?.quality, override?.maxResolution);
+      const plan = planForTexture(textureRoles, settings.preset, override);
       try {
         const image = texture.getImage();
         const webp = image ? await reencodeToWebP(image, mimeType, plan) : null;
@@ -123,24 +122,6 @@ export async function optimizeModel(
     },
     perTexture: outcome.perTexture,
   };
-}
-
-/** Overrides shift the role plan: setting a quality opts that texture into lossy. */
-function buildPlan(
-  textureRoles: TextureRole[],
-  preset: OptimizeSettings['preset'],
-  quality?: number,
-  maxResolution?: number,
-): WebPPlan {
-  // Multi-role: any data-map role wins — lossless beats lossy when in doubt.
-  const representative = textureRoles.find((role) => !COLOR_ROLES.includes(role)) ?? textureRoles[0] ?? 'other';
-  const plan = roleDefaults(representative, preset);
-  if (quality !== undefined) {
-    plan.lossless = false;
-    plan.quality = quality;
-  }
-  if (maxResolution !== undefined) plan.maxResolution = maxResolution;
-  return plan;
 }
 
 function detectFeatures(doc: Document): ModelReport['features'] {

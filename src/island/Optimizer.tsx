@@ -5,9 +5,12 @@
 
 import * as Comlink from 'comlink';
 import { useRef, useState } from 'preact/hooks';
-import type { ModelReport } from '../optimizer/types';
+import type { ModelReport, OptimizeSettings, QualityPreset, TextureOverride } from '../optimizer/types';
 import { validateModelInput } from '../optimizer/validate';
+import { Controls } from './Controls';
 import { Dropzone } from './Dropzone';
+import { formatBytes, int } from './format';
+import { TextureList } from './TextureList';
 import { createOptimizerClient, type OptimizerClient } from './workerClient';
 import './optimizer.css';
 
@@ -23,6 +26,7 @@ export function Optimizer() {
   // component too. First file → first (and only) worker.
   const clientRef = useRef<OptimizerClient>();
   const getClient = () => (clientRef.current ??= createOptimizerClient());
+  const loadSeq = useRef(0);
 
   async function handleFile(file: File) {
     setState({ phase: 'idle', busy: true });
@@ -36,6 +40,7 @@ export function Optimizer() {
       // The buffer is transferred (not copied) to the worker; the File handle stays
       // here so later phases (optimize run, before-viewer) can re-read the bytes.
       const report = await getClient().analyze(Comlink.transfer(buffer, [buffer]), file.name);
+      loadSeq.current += 1;
       setState({ phase: 'loaded', report, file });
     } catch {
       setState({
@@ -47,21 +52,31 @@ export function Optimizer() {
   }
 
   if (state.phase === 'loaded') {
-    return <ReportView report={state.report} onReset={() => setState(IDLE)} />;
+    // Keyed per load: a fresh model must start from fresh settings.
+    return <LoadedView key={loadSeq.current} report={state.report} onReset={() => setState(IDLE)} />;
   }
   return <Dropzone onFile={handleFile} busy={state.busy} error={state.error} />;
 }
 
-const int = new Intl.NumberFormat('en-US');
-
-function formatBytes(n: number): string {
-  if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-  if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${n} B`;
-}
-
-function ReportView({ report, onReset }: { report: ModelReport; onReset: () => void }) {
+function LoadedView({ report, onReset }: { report: ModelReport; onReset: () => void }) {
   const { meshStats, textures, features, warnings } = report;
+  const [preset, setPreset] = useState<QualityPreset>('balanced');
+  const [overrides, setOverrides] = useState<OptimizeSettings['overrides']>({});
+
+  // Merge a patch into one texture's override; drop cleared fields and empty
+  // overrides so the composed settings only carry real user decisions.
+  function patchOverride(id: string, patch: Partial<TextureOverride>) {
+    setOverrides((previous) => {
+      const merged: TextureOverride = { ...previous[id], ...patch };
+      for (const key of Object.keys(merged) as (keyof TextureOverride)[]) {
+        if (merged[key] === undefined) delete merged[key];
+      }
+      const next = { ...previous };
+      if (Object.keys(merged).length === 0) delete next[id];
+      else next[id] = merged;
+      return next;
+    });
+  }
   return (
     <section class="report" role="region" aria-label="Model report" data-testid="model-report">
       <header class="rp-head">
@@ -109,6 +124,9 @@ function ReportView({ report, onReset }: { report: ModelReport; onReset: () => v
           ))}
         </ul>
       )}
+
+      <Controls preset={preset} onPreset={setPreset} />
+      <TextureList textures={textures} preset={preset} overrides={overrides} onOverride={patchOverride} />
 
       <button class="rp-reset" type="button" onClick={onReset}>
         Load another model

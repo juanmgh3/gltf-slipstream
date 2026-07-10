@@ -6,7 +6,7 @@
 // conservative data-map treatment.
 
 import type { DracoOptions } from '@gltf-transform/functions';
-import type { QualityPreset, TextureRole } from './types';
+import type { QualityPreset, TextureOverride, TextureRole } from './types';
 
 export interface WebPPlan {
   lossless: boolean;
@@ -38,6 +38,27 @@ export function roleDefaults(role: TextureRole, preset: QualityPreset): WebPPlan
       ? { lossless: false, quality: 90, method: METHOD[preset] }
       : { lossless: true, quality: 100, method: METHOD[preset] };
   if (preset === 'aggressive') plan.maxResolution = AGGRESSIVE_RESOLUTION_CAP;
+  return plan;
+}
+
+/**
+ * Effective plan for one texture: role defaults shifted by the preset, then by the
+ * user's override. The single source both the pipeline (T11) and the TextureList
+ * UI (T14) consume — display can't drift from what the optimizer actually does.
+ * Multi-role: any data-map role wins — lossless beats lossy when in doubt.
+ */
+export function planForTexture(
+  roles: TextureRole[],
+  preset: QualityPreset,
+  override?: Pick<TextureOverride, 'quality' | 'maxResolution'>,
+): WebPPlan {
+  const representative = roles.find((role) => role !== 'baseColor' && role !== 'emissive') ?? roles[0] ?? 'other';
+  const plan = roleDefaults(representative, preset);
+  if (override?.quality !== undefined) {
+    plan.lossless = false;
+    plan.quality = override.quality;
+  }
+  if (override?.maxResolution !== undefined) plan.maxResolution = override.maxResolution;
   return plan;
 }
 
