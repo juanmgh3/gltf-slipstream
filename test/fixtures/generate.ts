@@ -100,13 +100,19 @@ export async function plainGlb(): Promise<Uint8Array> {
   return new NodeIO().writeBinary(doc);
 }
 
-/** Skinned mesh with real JOINTS_0/WEIGHTS_0 + a 2-joint skin. */
-export async function skinnedGlb(): Promise<Uint8Array> {
+/** Skinned mesh with real JOINTS_0/WEIGHTS_0 + a 2-joint skin. `textured` adds a
+ * baseColor-textured material — the "textures still optimized" acceptance half. */
+export async function skinnedGlb(textured = false): Promise<Uint8Array> {
   const doc = new Document();
   const buf = doc.createBuffer();
-  const prim = doc
-    .createPrimitive()
-    .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(QUAD.position).setBuffer(buf))
+  const material = textured
+    ? doc
+        .createMaterial('skinnedMat')
+        .setBaseColorTexture(
+          doc.createTexture('skin-base').setImage(solidPNG(8, 90, 140, 220)).setMimeType('image/png'),
+        )
+    : undefined;
+  const prim = quadPrim(doc, buf, material)
     .setAttribute(
       'JOINTS_0',
       doc.createAccessor().setType('VEC4').setArray(new Uint8Array([0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0])).setBuffer(buf),
@@ -114,8 +120,7 @@ export async function skinnedGlb(): Promise<Uint8Array> {
     .setAttribute(
       'WEIGHTS_0',
       doc.createAccessor().setType('VEC4').setArray(new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0])).setBuffer(buf),
-    )
-    .setIndices(doc.createAccessor().setType('SCALAR').setArray(QUAD.index).setBuffer(buf));
+    ); // quadPrim already set POSITION/NORMAL/TEXCOORD_0 + indices
   const meshNode = doc.createNode('skinned').setMesh(doc.createMesh('skinned').addPrimitive(prim));
   const joint0 = doc.createNode('joint0');
   const joint1 = doc.createNode('joint1');
@@ -170,7 +175,7 @@ export async function animOnlyGlb(): Promise<Uint8Array> {
  * DRACO + WebP must beat the container overhead — the "output is smaller"
  * acceptance criterion is meaningless on the tiny quad fixtures above.
  */
-export async function denseGlb(segments = 48): Promise<Uint8Array> {
+export async function denseGlb(segments = 48, textureSize = 64): Promise<Uint8Array> {
   const doc = new Document();
   const buf = doc.createBuffer();
   const side = segments + 1;
@@ -197,7 +202,7 @@ export async function denseGlb(segments = 48): Promise<Uint8Array> {
   }
   const material = doc
     .createMaterial('mat')
-    .setBaseColorTexture(doc.createTexture('base').setImage(solidPNG(64, 180, 120, 60)).setMimeType('image/png'));
+    .setBaseColorTexture(doc.createTexture('base').setImage(solidPNG(textureSize, 180, 120, 60)).setMimeType('image/png'));
   const prim = doc
     .createPrimitive()
     .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(position).setBuffer(buf))

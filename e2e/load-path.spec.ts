@@ -51,6 +51,13 @@ test('embedded .gltf reaches loaded via the file picker', async ({ page }) => {
   await expect(report(page)).toContainText('embedded.gltf');
 });
 
+test('embedded .gltf reaches loaded via drag-and-drop', async ({ page }) => {
+  await page.goto('/');
+  await dropFile(page, 'embedded.gltf', embeddedGltf());
+  await expect(report(page)).toBeVisible();
+  await expect(report(page)).toContainText('embedded.gltf');
+});
+
 test('junk is rejected with a clear error and the app stays alive', async ({ page }) => {
   await page.goto('/');
   await pickFile(page, 'junk.bin', junkBytes(), 'application/octet-stream');

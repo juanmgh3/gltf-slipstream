@@ -90,6 +90,34 @@ test('morph and skinned models survive the run without DRACO', async ({ page }) 
   }
 });
 
+test('a skinned model warns non-blocking and its textures are still optimized', async ({ page }) => {
+  await loadModel(page, 'skinned.glb', await skinnedGlb(true));
+  // The warning is surfaced, and it does NOT block the run.
+  const report = page.getByRole('region', { name: /model report/i });
+  await expect(report).toContainText(/skinned mesh detected/i);
+  const output = await runAndDownload(page);
+
+  const doc = await readGlb(output);
+  const textures = doc.getRoot().listTextures();
+  expect(textures.length).toBe(1);
+  expect(textures[0]!.getMimeType()).toBe('image/webp');
+  expect(glbJson(output).extensionsUsed ?? []).not.toContain('KHR_draco_mesh_compression');
+});
+
+test('quality and max-resolution overrides are reflected in the output', async ({ page }) => {
+  // Small grid, oversized 1024² texture — room for the 512 cap to actually bite.
+  await loadModel(page, 'bigtex.glb', await denseGlb(8, 1024));
+  const row = page.locator('[data-texture-name="base"]');
+  await row.getByRole('spinbutton', { name: /quality/i }).fill('50');
+  await row.getByRole('combobox', { name: /max size/i }).selectOption('512');
+  const output = await runAndDownload(page);
+
+  const doc = await readGlb(output);
+  const texture = doc.getRoot().listTextures()[0]!;
+  expect(texture.getMimeType()).toBe('image/webp');
+  expect(texture.getSize()).toEqual([512, 512]); // the cap was applied on the way out
+});
+
 test('the main thread keeps ticking during optimize (work stays in the worker)', async ({ page }) => {
   await loadModel(page, 'dense.glb', await denseGlb());
   await page.evaluate(() => {
