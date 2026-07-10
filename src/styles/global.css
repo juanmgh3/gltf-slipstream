@@ -1,0 +1,98 @@
+/* ============================================================
+   Slipstream · global stylesheet
+   Tokens are imported straight from slipstream-brand-kit/ — the
+   design source of truth — so the app can never drift from it.
+   Remote font CSS (Clash Display via Fontshare, Mona Sans via
+   Google Fonts) is linked from Base.astro's <head>: same load
+   paths as the kit's tokens/fonts.css, without nesting remote
+   @imports inside the Vite bundle. Clash Display is ITF FFL and
+   must never be self-hosted or bundled in this repo.
+   ============================================================ */
+
+@import "../../slipstream-brand-kit/tokens/colors.css";
+@import "../../slipstream-brand-kit/tokens/typography.css";
+@import "../../slipstream-brand-kit/tokens/spacing.css";
+
+/* ---- Azeret Mono · OFL, self-hosted from the kit ---- */
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("../../slipstream-brand-kit/assets/fonts/AzeretMono-Variable.woff2")
+    format("woff2-variations");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("../../slipstream-brand-kit/assets/fonts/AzeretMono-VariableItalic.woff2")
+    format("woff2-variations");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- Base ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--ss-page-bg);
+  color: var(--ss-text-body);
+  font-family: var(--ss-font-sans);
+  font-size: var(--ss-fs-body);
+  line-height: var(--ss-lh-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--ss-accent);
+  color: var(--ss-accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

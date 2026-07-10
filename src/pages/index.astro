@@ -1,9 +1,377 @@
 ---
 import Base from '../layouts/Base.astro';
+import icon from '../../slipstream-brand-kit/assets/logo/slipstream-icon-dark.svg?url';
+import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-lettering-dark.svg?url';
 ---
 
 <Base title="Slipstream — glTF/GLB optimizer">
-  <main>
-    {/* The optimizer island mounts here. */}
-  </main>
+  <div class="shell">
+    <header class="top">
+      <div class="lockup">
+        <img class="mark" src={icon} alt="" width="32" height="32" />
+        <img class="lettering" src={lettering} alt="Slipstream" width="140" height="35" />
+      </div>
+      <p class="top-note">100% client-side · 0 uploads</p>
+    </header>
+
+    {/* T4 design shell: the page IS the tool. The dropzone below is the visual
+        contract for the optimizer island — T13 replaces this markup with the
+        live island (worker, validation, analysis) on this exact design. */}
+    <main class="stage">
+      <section class="pitch">
+        <p class="kicker">In-browser&nbsp;·&nbsp;glTF&nbsp;/&nbsp;GLB optimizer</p>
+        <h1 class="headline">
+          Lighter models.<br />
+          <span class="underlined">Same shape.</span>
+        </h1>
+        <p class="lede">
+          DRACO geometry compression and WebP textures, processed entirely in
+          your browser. Your model never leaves your machine.
+        </p>
+        <p class="wire">KHR_draco_mesh_compression · EXT_texture_webp</p>
+      </section>
+
+      <section class="dropzone" id="dropzone" aria-label="Load a model">
+        <div class="dz-inner">
+          <svg
+            class="dz-glyph"
+            viewBox="0 0 24 24"
+            width="40"
+            height="40"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 3v12"></path>
+            <path d="m7 10 5 5 5-5"></path>
+            <path d="M4 19h16"></path>
+          </svg>
+          <p class="dz-title">Drop your model</p>
+          <p class="dz-hint">.glb or self-contained .gltf</p>
+          <input class="dz-input" type="file" id="file-input" accept=".glb,.gltf" />
+          <label class="dz-browse" for="file-input">Browse files</label>
+          <p class="dz-privacy">Processed locally — nothing is uploaded.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>Free &amp; open source · MIT</p>
+    </footer>
+  </div>
 </Base>
+
+<script>
+  // Visual-only drag states for the T4 design checkpoint; the drop itself is
+  // wired in T13. preventDefault stops the browser from navigating to the file.
+  const dz = document.getElementById('dropzone')!;
+  let depth = 0;
+  dz.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    depth += 1;
+    dz.classList.add('is-over');
+  });
+  dz.addEventListener('dragover', (e) => e.preventDefault());
+  dz.addEventListener('dragleave', () => {
+    depth = Math.max(0, depth - 1);
+    if (depth === 0) dz.classList.remove('is-over');
+  });
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault();
+    depth = 0;
+    dz.classList.remove('is-over');
+  });
+</script>
+
+<style>
+  .shell {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--ss-space-5) var(--ss-gutter);
+    max-width: var(--ss-maxw);
+    margin-inline: auto;
+  }
+
+  /* ---- Top bar ---- */
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ss-space-4);
+  }
+  .lockup {
+    display: flex;
+    align-items: center;
+    gap: var(--ss-space-3);
+  }
+  .top-note {
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-kicker);
+    font-weight: var(--ss-w-semibold);
+    letter-spacing: var(--ss-tracking-kicker);
+    text-transform: uppercase;
+    color: var(--ss-text-muted);
+  }
+
+  /* ---- Stage: pitch left, tool right ---- */
+  .stage {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--ss-space-8);
+    padding-block: var(--ss-space-7);
+  }
+
+  .pitch {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ss-space-5);
+  }
+
+  .kicker {
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-kicker);
+    font-weight: var(--ss-w-semibold);
+    letter-spacing: var(--ss-tracking-kicker);
+    text-transform: uppercase;
+    color: var(--ss-text-label);
+  }
+
+  .headline {
+    font-family: var(--ss-font-display);
+    font-size: clamp(3rem, 1.4rem + 3.6vw, 5.5rem);
+    font-weight: var(--ss-w-semibold);
+    line-height: var(--ss-lh-tight);
+    letter-spacing: var(--ss-tracking-impact);
+  }
+
+  /* The promise gets the live line: an amber rule that draws itself in. */
+  .underlined {
+    position: relative;
+    display: inline-block;
+  }
+  .underlined::after {
+    content: '';
+    position: absolute;
+    left: 0.04em;
+    right: 0.08em;
+    bottom: -0.06em;
+    height: 0.055em;
+    background: var(--ss-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+  }
+  @keyframes draw {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .lede {
+    max-width: 42ch;
+    color: var(--ss-text-muted);
+    line-height: var(--ss-lh-relaxed);
+  }
+
+  .wire {
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-small);
+    color: var(--ss-text-faint);
+  }
+
+  /* ---- Dropzone ---- */
+  .dropzone {
+    position: relative;
+    min-height: min(440px, 56vh);
+    background: var(--ss-surface);
+    border: var(--ss-hairline-w) solid var(--ss-border-strong);
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--ss-radius-xl)) 0,
+      100% var(--ss-radius-xl),
+      100% 100%,
+      0 100%
+    );
+    display: flex;
+    transition:
+      background 0.25s ease,
+      border-color 0.25s ease;
+  }
+  /* Inner dashed guide, drawn as its own layer so the notch stays crisp */
+  .dropzone::before {
+    content: '';
+    position: absolute;
+    inset: var(--ss-space-3);
+    border: 1px dashed var(--ss-border-strong);
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--ss-radius-lg)) 0,
+      100% var(--ss-radius-lg),
+      100% 100%,
+      0 100%
+    );
+    transition: border-color 0.25s ease;
+    pointer-events: none;
+  }
+
+  .dropzone:hover {
+    border-color: var(--ss-accent-line);
+  }
+  .dropzone:hover::before {
+    border-color: var(--ss-accent-line);
+  }
+
+  /* Drag-over = live: the amber moment */
+  .dropzone.is-over {
+    background: var(--ss-accent-soft);
+    border-color: var(--ss-accent);
+  }
+  .dropzone.is-over::before {
+    border-color: var(--ss-accent);
+  }
+  .dropzone.is-over .dz-glyph {
+    color: var(--ss-accent-text);
+    translate: 0 4px;
+  }
+  .dropzone.is-over .dz-title {
+    color: var(--ss-accent-text);
+  }
+
+  .dz-inner {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--ss-space-3);
+    padding: var(--ss-space-6);
+  }
+
+  .dz-glyph {
+    color: var(--ss-text-muted);
+    transition:
+      translate 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.25s ease;
+  }
+  .dropzone:hover .dz-glyph {
+    translate: 0 2px;
+  }
+
+  .dz-title {
+    font-family: var(--ss-font-display);
+    font-size: var(--ss-fs-h3);
+    font-weight: var(--ss-w-semibold);
+    transition: color 0.25s ease;
+  }
+  .dz-hint {
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-small);
+    color: var(--ss-text-faint);
+  }
+
+  .dz-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dz-browse {
+    margin-top: var(--ss-space-3);
+    background: var(--ss-accent);
+    color: var(--ss-accent-ink);
+    font-weight: var(--ss-w-semibold);
+    font-size: var(--ss-fs-small);
+    padding: var(--ss-space-2) var(--ss-space-5);
+    cursor: pointer;
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--ss-notch)) 0,
+      100% var(--ss-notch),
+      100% 100%,
+      0 100%
+    );
+    transition: filter 0.15s ease, translate 0.15s ease;
+  }
+  .dz-browse:hover {
+    filter: brightness(1.06);
+    translate: 0 -1px;
+  }
+  .dz-browse:active {
+    translate: 0 0;
+    filter: brightness(0.97);
+  }
+  .dz-input:focus-visible + .dz-browse {
+    outline: 2px solid var(--ss-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .dz-privacy {
+    margin-top: var(--ss-space-2);
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-kicker);
+    letter-spacing: var(--ss-tracking-kicker);
+    text-transform: uppercase;
+    color: var(--ss-text-faint);
+  }
+
+  /* ---- Footer ---- */
+  .foot {
+    border-top: var(--ss-hairline-w) solid var(--ss-hairline);
+    padding-top: var(--ss-space-4);
+    font-family: var(--ss-font-mono);
+    font-size: var(--ss-fs-kicker);
+    letter-spacing: var(--ss-tracking-kicker);
+    text-transform: uppercase;
+    color: var(--ss-text-faint);
+  }
+
+  /* ---- Load-in: one orchestrated pass, killed by reduced-motion ---- */
+  .top,
+  .pitch > *,
+  .dropzone,
+  .foot {
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .pitch > :nth-child(1) { animation-delay: 60ms; }
+  .pitch > :nth-child(2) { animation-delay: 120ms; }
+  .pitch > :nth-child(3) { animation-delay: 180ms; }
+  .pitch > :nth-child(4) { animation-delay: 240ms; }
+  .dropzone { animation-delay: 300ms; }
+  .foot { animation-delay: 380ms; }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 900px) {
+    .stage {
+      grid-template-columns: 1fr;
+      gap: var(--ss-space-6);
+      align-items: start;
+      padding-block: var(--ss-space-6);
+    }
+    .dropzone {
+      min-height: 320px;
+    }
+    .top-note {
+      display: none;
+    }
+  }
+</style>

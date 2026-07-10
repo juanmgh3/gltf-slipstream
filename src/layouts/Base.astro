@@ -1,8 +1,15 @@
 ---
+import '../styles/global.css';
+import favicon from '../../slipstream-brand-kit/assets/logo/slipstream-icon-dark.svg?url';
+
 interface Props {
   title?: string;
+  description?: string;
 }
-const { title = 'Slipstream' } = Astro.props;
+const {
+  title = 'Slipstream',
+  description = 'Client-side glTF/GLB optimizer — DRACO geometry compression and WebP textures, entirely in your browser.',
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -10,6 +17,24 @@ const { title = 'Slipstream' } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#262626" />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+    {/* Webfonts per slipstream-brand-kit/tokens/fonts.css. License rule:
+        Clash Display (ITF FFL) loads from the Fontshare CDN only — never
+        self-host or bundle it in this repo. */}
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap"
+    />
     <title>{title}</title>
   </head>
   <body>
