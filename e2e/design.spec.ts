@@ -1,9 +1,9 @@
-// T8 acceptance: the wipe stage itself — divider drag moves the shared
-// `--wipe` custom property and the slider's `aria-valuenow` together, a
-// programmatic orbit on the OPTIMIZED master mirrors onto the ORIGINAL
-// overlay within an epsilon (the rAF catch-up loop, not just `camera-change`),
-// both model-viewers reach `.loaded`, and the stage honors the ≥50vh floor
-// from the approved direction.
+// Design-level assertions over the live UI: the compare wipe stage — divider
+// drag moves the shared `--wipe` custom property and the slider's
+// `aria-valuenow` together, a programmatic orbit on the OPTIMIZED master
+// mirrors onto the ORIGINAL overlay within an epsilon (the rAF catch-up loop,
+// not just `camera-change`), both model-viewers reach `.loaded`, and the
+// stage honors its ≥50vh floor.
 import { test, expect, type Page } from '@playwright/test';
 import { denseGlb } from '../test/fixtures/generate';
 
@@ -32,7 +32,7 @@ async function waitBothLoaded(page: Page) {
   );
 }
 
-test.describe('design-elevation: compare wipe stage', () => {
+test.describe('compare wipe stage', () => {
   test('both viewers load and the stage meets the 50vh floor', async ({ page }) => {
     await optimizeDense(page);
     await waitBothLoaded(page);
@@ -123,10 +123,10 @@ test.describe('design-elevation: compare wipe stage', () => {
   });
 });
 
-// T9 acceptance: the texture list is a bounded timing table — 24 rows on the
+// The texture list is a bounded timing table — 24 rows on the
 // demo model never over-extend the report panel; the scroll region (not the
 // panel, not the page) is what carries the overflow.
-test.describe('design-elevation: texture timing table containment', () => {
+test.describe('texture timing table containment', () => {
   async function loadDemo(page: Page) {
     await page.goto('/');
     const demo = page.getByTestId('demo-button');
@@ -165,12 +165,12 @@ test.describe('design-elevation: texture timing table containment', () => {
   });
 });
 
-// T10 acceptance: phases read as sectors during a run — S1 TEXTURES · S2
+// Phases read as sectors during a run — S1 TEXTURES · S2
 // GEOMETRY · S3 WRITE — and the run region still reports done afterward.
 // A slower-than-default dense fixture (more segments + a bigger texture)
 // keeps the worker busy long enough that the optimizing state is reliably
 // observable, not a one-frame flash the assertions could race past.
-test.describe('design-elevation: optimizing sectors', () => {
+test.describe('optimizing sectors', () => {
   test('the three sector labels are visible during a run, then the run completes', async ({ page }) => {
     await page.goto('/');
     const input = page.getByTestId('file-input');
@@ -193,9 +193,9 @@ test.describe('design-elevation: optimizing sectors', () => {
   });
 });
 
-// T11 acceptance: the done state leads with the savings delta as hero, and
+// The done state leads with the savings delta as hero, and
 // the download CTA stays reachable by its accessible name.
-test.describe('design-elevation: results hero delta', () => {
+test.describe('results hero delta', () => {
   test('the hero delta renders a signed percentage and the download CTA is present', async ({ page }) => {
     await optimizeDense(page);
 
@@ -208,10 +208,10 @@ test.describe('design-elevation: results hero delta', () => {
   });
 });
 
-// T12 acceptance: the page shell — permanent privacy kicker, below-fold
-// sections, demo attribution visible in idle, and no horizontal overflow
-// across the viewport range the direction commits to (375 through 2560).
-test.describe('design-elevation: page shell', () => {
+// The page shell — permanent privacy kicker, below-fold sections, demo
+// attribution visible in idle, and no horizontal overflow across the
+// supported viewport range (375 through 2560).
+test.describe('page shell', () => {
   test('the privacy kicker is visible on load', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('privacy-kicker')).toBeVisible();

@@ -1,5 +1,5 @@
-// T14: `planForTexture` is the single source of the effective per-texture plan —
-// the pipeline applies it (T11) and the TextureList displays it. Promoted out of
+// `planForTexture` is the single source of the effective per-texture plan —
+// the pipeline applies it and the TextureList displays it. Promoted out of
 // optimize.ts so the UI can't drift from what the optimizer actually does.
 import { describe, expect, it } from 'vitest';
 import { planForTexture } from '../../src/optimizer/defaults';

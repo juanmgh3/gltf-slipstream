@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { roleDefaults, DRACO_OPTS } from '../../src/optimizer/defaults';
 import type { QualityPreset, TextureRole } from '../../src/optimizer/types';
 
-// T7 acceptance: the global preset shifts per-role defaults, and defaults honor
+// Defaults contract: the global preset shifts per-role defaults, and defaults honor
 // fidelity — color maps (sRGB) go lossy high-quality, data maps (linear) stay
 // lossless unless the user explicitly opts into "aggressive".
 

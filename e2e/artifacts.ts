@@ -1,4 +1,4 @@
-// Browser-produced optimized GLBs, captured for the T18 read-back vitest.
+// Browser-produced optimized GLBs, captured for the read-back vitest.
 // Deliberately NOT under test-results/ — Playwright wipes that dir on every run,
 // while these must survive until (and between) vitest runs.
 import { mkdirSync, writeFileSync } from 'node:fs';

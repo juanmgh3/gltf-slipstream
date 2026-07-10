@@ -1,4 +1,4 @@
-// design-elevation acceptance: "kit tokens only — no improvised colors". Every
+// Design-system guard: "kit tokens only — no improvised colors". Every
 // color in src/ must come through a var(--ss-*) token; a raw literal here means
 // either drift from the kit or a color the kit needs to grow a token for. The
 // brand kit itself (slipstream-brand-kit/, outside src/) is the one place

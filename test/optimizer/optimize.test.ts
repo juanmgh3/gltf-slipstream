@@ -6,7 +6,7 @@ import type { OptimizeSettings, Progress } from '../../src/optimizer/types';
 import { plainGlb, skinnedGlb, morphGlb, animOnlyGlb } from '../fixtures/generate';
 import { initJsquashForNode } from '../helpers/jsquash-node';
 
-// T11 acceptance at the document-graph level (the byte-level proof is E2E, T14–T16):
+// Pipeline contract at the document-graph level (the byte-level proof is E2E):
 // textures re-encode per settings, the DRACO gate is a pure decision, and DRACO is
 // only ever added when neither morph targets nor skinning are present.
 

@@ -1,4 +1,4 @@
-// Per-role WebP defaults and the DRACO quantization used by the pipeline (T11).
+// Per-role WebP defaults and the DRACO quantization used by the pipeline.
 // Fidelity rule: color maps (baseColor/emissive, sRGB) tolerate lossy compression
 // well; data maps (normal/metallicRoughness/occlusion, linear) don't — lossy WebP
 // shifts encoded values and visibly corrupts normals, so they stay lossless unless
@@ -43,8 +43,8 @@ export function roleDefaults(role: TextureRole, preset: QualityPreset): WebPPlan
 
 /**
  * Effective plan for one texture: role defaults shifted by the preset, then by the
- * user's override. The single source both the pipeline (T11) and the TextureList
- * UI (T14) consume — display can't drift from what the optimizer actually does.
+ * user's override. The single source both the pipeline and the TextureList
+ * UI consume — display can't drift from what the optimizer actually does.
  * Multi-role: any data-map role wins — lossless beats lossy when in doubt.
  */
 export function planForTexture(
@@ -62,7 +62,7 @@ export function planForTexture(
   return plan;
 }
 
-// Generic quality knobs proven in T1's spike — not model-specific. Normal (12) and
+// Generic quality knobs, not model-specific. Normal (12) and
 // texcoord (14) are raised above gltf-transform's defaults (10/12): normals feed
 // lighting and UVs address up-to-4K texels, both show quantization artifacts first.
 export const DRACO_OPTS: DracoOptions = {

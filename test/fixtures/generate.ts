@@ -1,6 +1,6 @@
 // Synthetic, license-free test fixtures built with NodeIO. Structurally REAL (bound
 // textures across roles, real JOINTS/WEIGHTS, a real morph target, node animation) so
-// the role/feature/pipeline tests in T6/T8/T11 actually mean something — but tiny and
+// the role/feature/pipeline tests actually mean something — but tiny and
 // deterministic (few-tri quads, 8x8 PNGs via a zlib encoder, zero new deps). Generated
 // in-memory on demand; nothing is written to disk or committed.
 import { Document, NodeIO, type Buffer as GBuffer, type Material } from '@gltf-transform/core';
@@ -101,7 +101,7 @@ export async function plainGlb(): Promise<Uint8Array> {
 }
 
 /** Skinned mesh with real JOINTS_0/WEIGHTS_0 + a 2-joint skin. `textured` adds a
- * baseColor-textured material — the "textures still optimized" acceptance half. */
+ * baseColor-textured material — proves textures still optimize when DRACO is gated off. */
 export async function skinnedGlb(textured = false): Promise<Uint8Array> {
   const doc = new Document();
   const buf = doc.createBuffer();
@@ -172,8 +172,8 @@ export async function animOnlyGlb(): Promise<Uint8Array> {
 
 /**
  * Dense textured grid (default 49×49 = 2 401 verts): enough real geometry that
- * DRACO + WebP must beat the container overhead — the "output is smaller"
- * acceptance criterion is meaningless on the tiny quad fixtures above.
+ * DRACO + WebP must beat the container overhead — "output is smaller"
+ * is meaningless on the tiny quad fixtures above.
  */
 export async function denseGlb(segments = 48, textureSize = 64): Promise<Uint8Array> {
   const doc = new Document();
@@ -214,7 +214,7 @@ export async function denseGlb(segments = 48, textureSize = 64): Promise<Uint8Ar
   return new NodeIO().writeBinary(doc);
 }
 
-/** Self-contained glTF JSON: buffer + image embedded as base64 data URIs — T5 must accept. */
+/** Self-contained glTF JSON: buffer + image embedded as base64 data URIs — the validator must accept. */
 export function embeddedGltf(): Uint8Array {
   const positions = new Float32Array([0, 0, 0, 1, 0, 0, 1, 1, 0]);
   const bufferB64 = Buffer.from(positions.buffer).toString('base64');
@@ -235,7 +235,7 @@ export function embeddedGltf(): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(gltf));
 }
 
-/** glTF JSON referencing EXTERNAL .bin + image resources — the invalid input T5 must reject. */
+/** glTF JSON referencing EXTERNAL .bin + image resources — the invalid input the validator must reject. */
 export function externalGltf(): Uint8Array {
   const gltf = {
     asset: { version: '2.0' },
@@ -253,7 +253,7 @@ export function externalGltf(): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(gltf));
 }
 
-/** Deterministic non-glTF bytes (bad magic) — the crash-safety case for T5. */
+/** Deterministic non-glTF bytes (bad magic) — the validator's crash-safety case. */
 export function junkBytes(): Uint8Array {
   const out = new Uint8Array(64);
   for (let i = 0; i < out.length; i++) out[i] = (i * 37 + 11) & 0xff;

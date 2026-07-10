@@ -1,4 +1,4 @@
-// Spike helper: self-host the wasm both decode paths need, so nothing is fetched
+// Postinstall: self-host the wasm both decode paths need, so nothing is fetched
 // from a CDN (privacy + offline-friendly).
 //   public/draco/    → draco3d encoder+decoder wasm  (the WebIO worker path)
 //   public/mv-draco/ → three.js draco decoder         (model-viewer consumer path)

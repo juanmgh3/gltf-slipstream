@@ -4,7 +4,7 @@ import { KHRDracoMeshCompression } from '@gltf-transform/extensions';
 import { analyzeDocument, LARGE_INPUT_BYTES, LARGE_TEXTURE_DIMENSION } from '../../src/optimizer/analyze';
 import { plainGlb, skinnedGlb, morphGlb, animOnlyGlb } from '../fixtures/generate';
 
-// T8 acceptance: stats + texture list + feature detection (animation / skinning /
+// Analysis contract: stats + texture list + feature detection (animation / skinning /
 // morph targets) + non-blocking warnings. Analysis must never throw on a valid model.
 
 const io = new NodeIO().registerExtensions([KHRDracoMeshCompression]);

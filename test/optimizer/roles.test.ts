@@ -3,7 +3,7 @@ import { NodeIO, type Document, type Texture } from '@gltf-transform/core';
 import { detectTextureRoles } from '../../src/optimizer/roles';
 import { plainGlb } from '../fixtures/generate';
 
-// T6 acceptance: roles derive from how materials bind each texture (not from names),
+// Role detection: roles derive from how materials bind each texture (not from names),
 // and a texture bound in several slots keeps the full role set.
 
 describe('detectTextureRoles', () => {

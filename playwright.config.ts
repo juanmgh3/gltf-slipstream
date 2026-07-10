@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// E2E for the in-browser flow (acceptance criteria land in T13+). The dev server is
+// E2E for the in-browser flow. The dev server is
 // started automatically; reuse a running one locally.
 export default defineConfig({
   testDir: './e2e',
@@ -17,7 +17,7 @@ export default defineConfig({
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
-    // Astro 7 auto-daemonizes `astro dev` depending on how it was launched
+    // Astro 7 can auto-daemonize `astro dev` depending on how it was launched,
     // which makes Playwright see the webServer process "exit early".
     // ASTRO_DEV_BACKGROUND is Astro's own foreground marker — setting it keeps the
     // dev server attached to this process regardless of who launched it.

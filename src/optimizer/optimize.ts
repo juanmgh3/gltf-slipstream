@@ -1,4 +1,4 @@
-// Optimization pipeline (T11). Document-level core: per-texture WebP re-encode
+// Optimization pipeline. Document-level core: per-texture WebP re-encode
 // honoring settings/overrides, then non-destructive geometry cleanup, then DRACO —
 // gated OFF whenever morph targets or skinning are present, because
 // KHR_draco_mesh_compression doesn't cover morph targets and its re-indexing

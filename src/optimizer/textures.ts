@@ -1,4 +1,4 @@
-// Texture re-encode (T10): decode → optional Lanczos3 downscale → WebP encode.
+// Texture re-encode: decode → optional Lanczos3 downscale → WebP encode.
 // @jsquash gives real libwebp control (lossless/quality/method); the browser Canvas
 // fallback gltf-transform would use silently ignores those knobs, which defeats the
 // tool's purpose. KTX2/Basis never reach this module — the pipeline keeps them as-is.

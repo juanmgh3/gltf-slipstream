@@ -1,7 +1,7 @@
-// Parse boundary (T5): magic-byte / structural check before anything touches gltf-transform.
+// Parse boundary: magic-byte / structural check before anything touches gltf-transform.
 // Accepts self-contained .glb and embedded-data-URI .gltf; rejects .gltf/.glb that
 // reference external .bin/images (the tool is client-side only — it cannot fetch them).
-// Messages are user-facing: the island (T13) shows them verbatim on rejected drops.
+// Messages are user-facing: the island shows them verbatim on rejected drops.
 
 export type ValidationResult = { ok: true; kind: 'glb' | 'gltf' } | { ok: false; message: string };
 

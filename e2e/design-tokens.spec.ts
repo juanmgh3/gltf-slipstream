@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// T4: the brand kit is wired into the shell — `--ss-*` tokens apply and the
+// The brand kit is wired into the shell — `--ss-*` tokens apply and the
 // three font families resolve (Clash Display via Fontshare CDN, Mona Sans via
 // Google Fonts, Azeret Mono self-hosted from the kit).
 

@@ -1,4 +1,4 @@
-// Done state (T15, re-dressed T11): the numbers and the artifact. The savings
+// Done state: the numbers and the artifact. The savings
 // delta leads as the hero figure, sizes and the geometry/texture breakdown
 // tell the truthful story beneath it, and the optimized GLB downloads as a
 // client-side blob — bytes never leave the machine.
@@ -91,7 +91,7 @@ export function Results({ fileName, file, result, onReset }: ResultsProps) {
   );
 }
 
-// Truthful before→after bar (spec "Done", direction pillar 4): the fill shows
+// Truthful before→after bar: the fill shows
 // AFTER as a proportion of BEFORE, clamped at 100% so a grown category can't
 // blow the track out — but the figure text never clamps or hides the growth.
 // Saved reads --ss-positive; grown reads --ss-danger and says "+N". No amber

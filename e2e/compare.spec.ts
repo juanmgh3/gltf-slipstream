@@ -1,4 +1,4 @@
-// T16 acceptance: before/after compare. Both model-viewer instances render; the
+// Before/after compare. Both model-viewer instances render; the
 // optimized GLB — DRACO + WebP — loads WITHOUT error (re-rendering IS the
 // correctness check); the DRACO decoder comes from our own host, never a CDN.
 import { test, expect, type Page } from '@playwright/test';

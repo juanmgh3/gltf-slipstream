@@ -1,8 +1,7 @@
-// Per-texture rows (T14, rebuilt as a timing table in T9): identity + roles + the
-// effective plan, with exactly the three overrides the spec fixed — exclude /
-// quality / max-resolution. The shown plan comes from the same `planForTexture`
-// the pipeline applies (T11), so the row always tells the truth about what an
-// optimize run would do.
+// Per-texture rows as a timing table: identity + roles + the effective plan,
+// with exactly three overrides — exclude / quality / max-resolution. The shown
+// plan comes from the same `planForTexture` the pipeline applies, so the row
+// always tells the truth about what an optimize run would do.
 
 import { planForTexture } from '../optimizer/defaults';
 import type { QualityPreset, TextureInfo, TextureOverride } from '../optimizer/types';
@@ -29,7 +28,7 @@ export function TextureList({ textures, preset, overrides, onOverride }: Texture
   return (
     <section class="textures" aria-label="Textures">
       <h3 class="tx-heading">Textures</h3>
-      {/* Bounded scroll region (T9): the table never grows past this, so 24 rows
+      {/* Bounded scroll region: the table never grows past this, so 24 rows
           can't push the report panel past the viewport — thead stays pinned while
           rows scroll under it. */}
       <div class="tx-scroll" data-testid="texture-scroll">

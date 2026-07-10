@@ -1,5 +1,4 @@
-// Before/after 3D compare (T8): a slider-wipe over one stage, ported from the
-// validated prototype (src/pages/design/_Wipe.tsx). One model-viewer pair:
+// Before/after 3D compare: a slider-wipe over one stage. One model-viewer pair:
 // the base (OPTIMIZED) is the only interaction target; the overlay (ORIGINAL)
 // is clipped to the left of the divider, ignores pointers, and mirrors the
 // master camera one-directionally. Re-rendering the optimized GLB in

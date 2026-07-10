@@ -1,4 +1,4 @@
-// T13 acceptance: the load path. A model reaches `loaded` via BOTH drag-and-drop and
+// The load path. A model reaches `loaded` via BOTH drag-and-drop and
 // the file picker; invalid input is rejected with a clear message without killing the
 // app; and the network carries no model payload (privacy is architectural).
 // Fixtures are generated in-memory by the Node side of Playwright — nothing on disk.

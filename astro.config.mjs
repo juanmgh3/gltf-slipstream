@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
-// The `vite` block is EXACTLY the config the T1 spike proved (plan Risk #5):
+// The `vite` block is load-bearing for the wasm codecs:
 // jSquash codecs excluded from dep optimization, workers built as ES modules.
 // DRACO/decoder wasm are self-hosted under public/ and fetched via locateFile,
 // so no extra wasm-import plugin is needed.

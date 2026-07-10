@@ -1,6 +1,6 @@
-// Shared island hooks. `useCountUp` started life inside Optimizer.tsx (T10)
-// and Results.tsx's hero delta (T11) needs the exact same contract, so it
-// lives here instead of being copy-pasted.
+// Shared island hooks. `useCountUp` started life inside Optimizer.tsx;
+// Results.tsx's hero delta needs the exact same contract, so it lives here
+// instead of being copy-pasted.
 
 import { useEffect, useState } from 'preact/hooks';
 

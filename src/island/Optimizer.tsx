@@ -1,7 +1,6 @@
-// The optimizer island: state machine over the load path (T13). Validation happens
-// at this boundary (T5) before any bytes cross to the worker; the worker only ever
-// sees input the validator admitted. `optimizing` and `done` join the union in T15
-// when the run path lands.
+// The optimizer island: a state machine over the load → optimize → done flow.
+// Validation happens at this boundary before any bytes cross to the worker; the
+// worker only ever sees input the validator admitted.
 
 import * as Comlink from 'comlink';
 import { useRef, useState } from 'preact/hooks';
@@ -195,7 +194,7 @@ function LoadedView({ report, runError, onOptimize, onReset }: LoadedViewProps) 
   const [preset, setPreset] = useState<QualityPreset>('balanced');
   const [overrides, setOverrides] = useState<OptimizeSettings['overrides']>({});
 
-  // The instrument row (T10): four figures count up once, on entry into this
+  // The instrument row: four figures count up once, on entry into this
   // state — see useCountUp's mount-keyed effect above.
   const vertsUp = useCountUp(meshStats.vertexCount);
   const primsUp = useCountUp(meshStats.primitiveCount);

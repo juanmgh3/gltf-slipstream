@@ -1,4 +1,4 @@
-// Global quality preset (T14). One radiogroup, three presets; the active option is
+// Global quality preset. One radiogroup, three presets; the active option is
 // the live thing and carries the amber (accent fill + ink, per the accent rule).
 
 import type { QualityPreset } from '../optimizer/types';

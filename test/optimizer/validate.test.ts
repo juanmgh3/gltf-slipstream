@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateModelInput } from '../../src/optimizer/validate';
 import { plainGlb, embeddedGltf, externalGltf, junkBytes } from '../fixtures/generate';
 
-// T5 acceptance (plan resolved Q1): accept self-contained .glb + embedded-data-URI
+// Input contract: accept self-contained .glb + embedded-data-URI
 // .gltf; reject external-resource .gltf and non-glTF bytes with a clear message.
 
 /** Wrap a glTF JSON payload in a minimal single-chunk GLB container. */

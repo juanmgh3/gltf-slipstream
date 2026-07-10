@@ -4,8 +4,8 @@ import { reencodeToWebP } from '../../src/optimizer/textures';
 import { solidPNG } from '../fixtures/generate';
 import { initJsquashForNode } from '../helpers/jsquash-node';
 
-// T10 acceptance: decode (png/jpeg/webp) → optional Lanczos3 downscale → WebP encode
-// honoring the T7 plan.
+// Re-encode contract: decode (png/jpeg/webp) → optional Lanczos3 downscale → WebP
+// encode honoring the effective plan.
 
 beforeAll(initJsquashForNode);
 

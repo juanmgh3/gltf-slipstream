@@ -1,4 +1,4 @@
-// Model analysis (T8): stats, texture inventory with roles, feature detection and
+// Model analysis: stats, texture inventory with roles, feature detection and
 // non-blocking warnings. Pure over a parsed Document so it runs under NodeIO in
 // tests and under WebIO in the worker; it must never throw on a valid model.
 
@@ -6,7 +6,7 @@ import type { Document } from '@gltf-transform/core';
 import { detectTextureRoles } from './roles';
 import type { ModelReport, TextureInfo } from './types';
 
-// Threshold derived from the T1 spike: ~214 ms to encode a 1024² texture. WebP
+// Threshold from measurement: ~214 ms to encode a 1024² texture in-browser. WebP
 // encode scales with texel count, so a 4096² map costs ~16× (≈3.5 s per texture).
 export const LARGE_TEXTURE_DIMENSION = 4096;
 export const LARGE_INPUT_BYTES = 50 * 1024 * 1024;

@@ -3,8 +3,8 @@ import { NodeIO } from '@gltf-transform/core';
 import { plainGlb, skinnedGlb, morphGlb, animOnlyGlb, externalGltf, junkBytes } from './generate';
 
 // Sanity: each generated fixture is structurally real and loadable, and the two
-// invalid inputs (external.gltf, junk.bin) are present for T5. Per-task tests
-// (roles in T6, features in T8, pipeline in T11) build on these.
+// invalid inputs (external.gltf, junk.bin) are present. The role/feature/pipeline
+// tests build on these.
 const io = new NodeIO();
 
 describe('test fixtures', () => {

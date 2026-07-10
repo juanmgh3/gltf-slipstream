@@ -1,4 +1,4 @@
-// T17 acceptance: the bundled demo runs the full flow. Click-to-try loads
+// The bundled demo runs the full flow. Click-to-try loads
 // public/demo/perseverance.glb (CC0, NASA/JPL-Caltech) through the exact same
 // path as a dropped file, the run produces a smaller GLB, and both compare
 // viewers render it. This is the one E2E against a real heavyweight model.
@@ -12,7 +12,7 @@ const RUN_TIMEOUT = 120_000;
 test('click-to-try → optimize → compare, end to end on the demo model', async ({ page }) => {
   const pageErrors: string[] = [];
   page.on('pageerror', (error) => pageErrors.push(String(error)));
-  // Same rule as the T13 privacy test: same-origin static GETs and the licensed
+  // Same rule as the load-path privacy test: same-origin static GETs and the licensed
   // font CDNs only; nothing may carry a body.
   const FONT_HOSTS = /(^|\.)(fontshare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
   const offenders: string[] = [];
@@ -40,7 +40,7 @@ test('click-to-try → optimize → compare, end to end on the demo model', asyn
   await expect(results.getByTestId('rs-savings')).toContainText('%');
 
   // On a real heavyweight model the output must actually shrink; the artifact
-  // feeds the T18 shape-preservation read-back.
+  // feeds the shape-preservation read-back.
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('link', { name: /download/i }).click();
   const output = new Uint8Array(readFileSync(await (await downloadPromise).path()));

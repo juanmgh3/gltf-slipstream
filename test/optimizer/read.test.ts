@@ -1,4 +1,4 @@
-// T13: the worker must accept both container formats the validator admits — binary
+// The worker must accept both container formats the validator admits — binary
 // .glb and fully-embedded .gltf JSON. `readModel` is the format branch, unit-tested
 // here over NodeIO (PlatformIO superclass — same code path WebIO takes in the worker).
 import { NodeIO } from '@gltf-transform/core';

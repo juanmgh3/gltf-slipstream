@@ -1,6 +1,6 @@
-// T15 acceptance: the optimize run. Full flow → Results (sizes, savings,
-// geometry/texture breakdown) and a downloadable GLB that is smaller, carries
-// DRACO + WebP, and re-decodes. Also settles T14's deferred byte-level criterion:
+// The optimize run. Full flow → Results (sizes, savings, geometry/texture
+// breakdown) and a downloadable GLB that is smaller, carries DRACO + WebP, and
+// re-decodes. Also proves the byte-level half of the overrides contract:
 // an excluded texture's bytes survive the run untouched while the rest turn WebP.
 import { readFileSync } from 'node:fs';
 import { NodeIO } from '@gltf-transform/core';
@@ -41,7 +41,7 @@ test('the run produces a smaller GLB with DRACO + WebP that re-decodes', async (
   const input = await denseGlb();
   await loadModel(page, 'dense.glb', input);
   const output = await runAndDownload(page);
-  captureArtifact('dense-optimized.glb', output); // read back in test/readback.test.ts (T18)
+  captureArtifact('dense-optimized.glb', output); // read back in test/readback.test.ts
 
   expect(output.byteLength).toBeLessThan(input.byteLength);
   const extensions = glbJson(output).extensionsUsed ?? [];
@@ -77,7 +77,7 @@ test('an excluded texture keeps its exact bytes while the rest become WebP', asy
 });
 
 test('morph and skinned models survive the run without DRACO', async ({ page }) => {
-  // Byte-level half of the T11 animation/skinning gate: the written GLB — not just
+  // Byte-level half of the animation/skinning gate: the written GLB — not just
   // the document graph — must carry no KHR_draco_mesh_compression for these.
   for (const [name, fixture] of [
     ['morph', morphGlb],
@@ -85,7 +85,7 @@ test('morph and skinned models survive the run without DRACO', async ({ page }) 
   ] as const) {
     await loadModel(page, `${name}.glb`, await fixture());
     const output = await runAndDownload(page);
-    captureArtifact(`${name}-optimized.glb`, output); // read back in test/readback.test.ts (T18)
+    captureArtifact(`${name}-optimized.glb`, output); // read back in test/readback.test.ts
     expect(glbJson(output).extensionsUsed ?? []).not.toContain('KHR_draco_mesh_compression');
   }
 });

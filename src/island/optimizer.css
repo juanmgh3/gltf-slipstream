@@ -1,8 +1,7 @@
 /* Optimizer island styles. Global by nature (Astro's style scoping can't reach
-   Preact-rendered DOM), namespaced by .dropzone / .dz-* / .report / .rp-*.
-   The dropzone treatment is the T4 shell design, moved here with the markup. */
+   Preact-rendered DOM), namespaced by .dropzone / .dz-* / .report / .rp-*. */
 
-/* ---- Dropzone (T12: the idle hero mass — the largest thing on the page at
+/* ---- Dropzone (the idle hero mass — the largest thing on the page at
    rest, so it gets generous padding and the tallest floor of any panel). ---- */
 .dropzone {
   --spot-x: 50%;
@@ -203,7 +202,7 @@
 /* ---- Model report (loaded state, same panel footprint) ---- */
 .report {
   min-height: min(440px, 56vh);
-  /* Containment backstop (T9): the texture table bounds itself internally, but
+  /* Containment backstop: the texture table bounds itself internally, but
      this caps the panel too so it can never exceed the viewport regardless of
      how much other report content (warnings, features) stacks above the table. */
   max-height: 96dvh;
@@ -264,7 +263,7 @@
   color: var(--ss-text-muted);
 }
 
-/* ---- Instrument row (T10, "the garage"): identity figures as raw telemetry —
+/* ---- Instrument row ("the garage"): identity figures as raw telemetry —
    large Clash Display numerals on a lit surface card, counting up once on
    state entry (see Optimizer.tsx's useCountUp). ---- */
 .rp-instruments {
@@ -306,8 +305,8 @@
   color: var(--ss-text-muted);
 }
 
-/* Warnings as flags (T10, pillar 4 exception: amber marks these because they
-   are the one static thing the accent rule explicitly carves out for —
+/* Warnings as flags (an accent-rule exception: amber marks these because they
+   are the one static thing the rule explicitly carves out for —
    "elevated, flagged" reads differently than a plain error list). */
 .rp-warnings {
   display: flex;
@@ -326,7 +325,7 @@
   padding: var(--ss-space-2) var(--ss-space-3);
 }
 
-/* ---- Controls: quality preset (T14) ---- */
+/* ---- Controls: quality preset ---- */
 .controls {
   display: flex;
   align-items: center;
@@ -386,7 +385,7 @@
   outline-offset: 2px;
 }
 
-/* ---- Texture list (T9: timing table) ---- */
+/* ---- Texture list (the timing table) ---- */
 .textures {
   display: flex;
   flex-direction: column;
@@ -452,7 +451,7 @@
 .tx-table tbody tr:last-child td {
   border-bottom: 0;
 }
-/* Row hover (pillar 4): inset amber ring built from per-cell insets (box-shadow
+/* Row hover: inset amber ring built from per-cell insets (box-shadow
    doesn't reliably paint on <tr> across engines) + a 2px nudge right. */
 .tx-table tbody tr:hover td {
   background: var(--ss-surface);
@@ -510,7 +509,7 @@
 .tx-plan-cell {
   white-space: nowrap;
 }
-/* Live marker (pillar 4): amber only when a user override diverges from the
+/* Live marker: amber only when a user override diverges from the
    preset default — never a fill, text only. */
 .tx-live-mark {
   color: var(--ss-accent-text);
@@ -518,7 +517,7 @@
 }
 .tx-plan-tag {
   display: inline-block;
-  /* Sharp corners = raw data, deliberately (pillar 3). */
+  /* Sharp corners = raw data, deliberately. */
   border: var(--ss-hairline-w) solid var(--ss-border);
   border-radius: var(--ss-radius-xs);
   padding: 1px var(--ss-space-1);
@@ -573,7 +572,7 @@
   opacity: 0.4;
 }
 
-/* ---- Actions row + accent button (T15) ---- */
+/* ---- Actions row + accent button ---- */
 .rp-actions {
   margin-top: auto;
   display: flex;
@@ -615,7 +614,7 @@
   color: var(--ss-danger);
 }
 
-/* ---- Optimizing view (T10: sectors) ----
+/* ---- Optimizing view (sectors) ----
    Phases read as sectors (S1/S2/S3): a segmented track per sector, gapped so
    each reads as its own instrument, rounded end-caps on the OUTER ends only
    (the flex gap + per-position radius below is what gives the inner edges
@@ -691,10 +690,10 @@
   color: var(--ss-text-muted);
 }
 
-/* ---- Results view (T15, re-dressed T11) ----
+/* ---- Results view ----
    The delta is the hero: gradient TEXT (never a halo around the glyphs) on a
-   card that carries the glow instead — pillar 4's rule, literally. The card
-   is one of the notch's 2-3 reserved frames (pillar 3). Sizes flank it in
+   card that carries the glow instead — the accent rule, literally. The card
+   is one of the notch's 2-3 reserved frames. Sizes flank it in
    mono/tabular-nums; the breakdown below is two truthful before→after bars,
    cold data colors only (--ss-positive/--ss-danger), never amber. */
 /* Results packs one more section (the hero) above the wipe stage than the
@@ -755,7 +754,7 @@
   /* Near --ss-fs-impact (hero scale): --ss-fs-impact is tuned for full-bleed
      page headlines and would blow both this card's width (capped at
      --ss-maxw's two-column shell) and the report's contained-panel height
-     (T9's over-extension rule — the compare stage still needs its 50vh
+     (the over-extension rule — the compare stage still needs its 50vh
      floor beneath this), so this clamp tops out much lower. */
   font-size: clamp(2rem, 1.4rem + 1.6vw, 3.25rem);
   font-weight: var(--ss-w-semibold);
@@ -860,7 +859,7 @@
   }
 }
 
-/* Download is THE accent CTA (T11): pill (pillar 3's CTA tier, unlike the
+/* Download is THE accent CTA: pill (the CTA radius tier, unlike the
    notch-cornered .btn-accent elsewhere), lift 2px + live glow on hover. */
 .rs-cta {
   clip-path: none;
@@ -884,7 +883,7 @@
   }
 }
 
-/* ---- Compare viewer (T8): slider wipe over one framed stage ----
+/* ---- Compare viewer: slider wipe over one framed stage ----
    Chrome per the "pit wall at night" direction: lg radius, hairline border,
    float shadow + lit top edge (the two combine as one comma-separated
    box-shadow list). Full content width, stage floor at 50vh so the model

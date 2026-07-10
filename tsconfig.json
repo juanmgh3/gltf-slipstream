@@ -5,5 +5,5 @@
     "jsxImportSource": "preact"
   },
   "include": ["src", "test", "e2e", "vitest.config.ts", "playwright.config.ts"],
-  "exclude": ["dist", "node_modules", ".astro", "spike"]
+  "exclude": ["dist", "node_modules", ".astro"]
 }

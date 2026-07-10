@@ -1,7 +1,7 @@
 // The idle dropzone's mark: the Slipstream icon as a depth-graded particle
 // swarm — emerge-from-depth entrance, cursor repel, click ripples with echoes.
-// Tuned in the throwaway lab (public/particles-lab.html) and frozen here as
-// the hand-tuned config. All forces/spacings are absolute px so
+// Tuned by hand against the real mark and frozen here — treat CFG as a
+// designed artifact, not derived values. All forces/spacings are absolute px so
 // the tuned feel survives any mark size; colors are SAMPLED from the icon SVG
 // itself, so the guard's "kit tokens only" rule holds with no literals here.
 

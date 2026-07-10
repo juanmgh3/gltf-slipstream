@@ -1,4 +1,4 @@
-// T18 — shape-preservation read-back over BROWSER-produced artifacts. The E2E
+// Shape-preservation read-back over BROWSER-produced artifacts. The E2E
 // suite captures each optimized GLB into .artifacts/ (see e2e/artifacts.ts); this
 // spec reads them back through NodeIO + the DRACO decoder and asserts the
 // fidelity invariants:
@@ -98,7 +98,7 @@ async function readPair(name: string, original: Uint8Array) {
   };
 }
 
-describe('T18 read-back: browser-optimized artifacts preserve shape', () => {
+describe('read-back: browser-optimized artifacts preserve shape', () => {
   test.skipIf(!hasArtifact('dense'))('dense: triangles + slots preserved, DRACO present', async () => {
     const { original, optimized, optimizedExtensions } = await readPair('dense', await denseGlb());
     expect(triangleCount(optimized)).toBe(triangleCount(original));

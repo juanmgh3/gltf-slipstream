@@ -1,6 +1,6 @@
-// Load surface: drag-and-drop AND file picker (T13). The idle hero mass (T12):
-// oversized target, the icon as an interactive particle swarm (verdict
-// correction round), amber solid border on drag-over — the live moment.
+// Load surface: drag-and-drop AND file picker. Doubles as the idle hero mass:
+// oversized target, the icon as an interactive particle swarm, amber solid
+// border on drag-over — the live moment.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import iconDark from '../../slipstream-brand-kit/assets/logo/slipstream-icon-dark.svg?url';

@@ -1,5 +1,5 @@
-// Public contract for the framework-agnostic optimizer core. Transcribed from the
-// plan (§Interfaces); the worker (T12) and island (T13+) consume these verbatim.
+// Public contract for the framework-agnostic optimizer core; the worker and
+// island consume these verbatim.
 
 export type TextureRole =
   | 'baseColor'

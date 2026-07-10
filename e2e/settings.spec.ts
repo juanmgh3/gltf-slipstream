@@ -1,8 +1,8 @@
-// T14 acceptance: settings → overrides. The texture list shows each texture's
-// effective plan; changing the global preset shifts the shown defaults; the three
-// per-texture overrides (exclude / quality / max-resolution) are reflected in the
-// row's plan. The byte-level half of the criterion (excluded texture unchanged &
-// not WebP in the output GLB) needs the optimize run and lands in T15's E2E.
+// Settings → overrides. The texture list shows each texture's effective plan;
+// changing the global preset shifts the shown defaults; the three per-texture
+// overrides (exclude / quality / max-resolution) are reflected in the row's
+// plan. The byte-level half (excluded texture unchanged & not WebP in the
+// output GLB) needs the optimize run and lives in optimize-run.spec.ts.
 import { test, expect, type Page } from '@playwright/test';
 import { plainGlb } from '../test/fixtures/generate';
 
