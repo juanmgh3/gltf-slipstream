@@ -54,22 +54,41 @@ export function Wipe({ originalSrc, optimizedSrc }: WipeProps) {
 
   // One-directional camera mirroring: master (OPTIMIZED) → overlay (ORIGINAL).
   // No feedback-loop guard is needed because the overlay never emits back.
+  // camera-change alone is NOT enough: wheel zoom stops emitting before the
+  // master's eased interpolation settles, leaving the mirror ~1m of radius
+  // behind (measured). So each event kicks a rAF loop that keeps copying until
+  // the master has been still for a few frames — moving-camera cost only.
   useEffect(() => {
     if (!ready) return;
     const master = masterRef.current as ModelViewerElement | null;
     const mirror = mirrorRef.current as ModelViewerElement | null;
     if (!master || !mirror) return;
-    const sync = () => {
+    let raf = 0;
+    let last = '';
+    let still = 0;
+    const copy = () => {
       const orbit = master.getCameraOrbit();
       const target = master.getCameraTarget();
       mirror.cameraOrbit = `${orbit.theta}rad ${orbit.phi}rad ${orbit.radius}m`;
       mirror.cameraTarget = `${target.x}m ${target.y}m ${target.z}m`;
       mirror.fieldOfView = `${master.getFieldOfView()}deg`;
       mirror.jumpCameraToGoal();
+      return `${orbit.theta},${orbit.phi},${orbit.radius},${target.x},${target.y},${target.z},${master.getFieldOfView()}`;
+    };
+    const loop = () => {
+      const key = copy();
+      still = key === last ? still + 1 : 0;
+      last = key;
+      raf = still < 12 ? requestAnimationFrame(loop) : 0;
+    };
+    const sync = () => {
+      still = 0;
+      if (!raf) raf = requestAnimationFrame(loop);
     };
     master.addEventListener('camera-change', sync);
     master.addEventListener('load', sync); // align initial auto-framing
     return () => {
+      cancelAnimationFrame(raf);
       master.removeEventListener('camera-change', sync);
       master.removeEventListener('load', sync);
     };
@@ -111,18 +130,27 @@ export function Wipe({ originalSrc, optimizedSrc }: WipeProps) {
         camera-controls
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       />
-      {/* Overlay: ORIGINAL, clipped to the left of the divider, pointer-blind. */}
+      {/* Overlay: ORIGINAL, clipped to the left of the divider, pointer-blind.
+          Opaque background — otherwise the master renders through and any
+          transient camera lag reads as a ghost duplicate on this side.
+          Orbit limits are released: interactive zoom on the master goes past
+          the default min-radius clamp, and a clamped mirror sticks there
+          (measured: master 5.08m vs mirror clamped at 6.81m). The master's own
+          limits are the only ones that matter — the mirror just obeys. */}
       <model-viewer
         ref={mirrorRef}
         data-testid="wipe-original"
         src={originalSrc}
         alt="Original model"
+        min-camera-orbit="-Infinity 0deg 0m"
+        max-camera-orbit="Infinity 180deg 10000%"
         style={{
           position: 'absolute',
           inset: 0,
           width: '100%',
           height: '100%',
           pointerEvents: 'none',
+          background: 'var(--ss-cell-bg)',
           clipPath: `inset(0 ${100 - wipe}% 0 0)`,
         }}
       />
