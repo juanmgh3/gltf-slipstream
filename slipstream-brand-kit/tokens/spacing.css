@@ -1,0 +1,37 @@
+/* ============================================================
+   Slipstream · Spacing, radius & layout tokens  (inherited)
+   Strict grid, generous breathing room. Flat design — no heavy
+   shadows, blurs or gradients (performance as an aesthetic).
+   8px base rhythm.
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale (8px base) ---- */
+  --ss-space-1:  4px;
+  --ss-space-2:  8px;
+  --ss-space-3:  12px;
+  --ss-space-4:  16px;
+  --ss-space-5:  24px;
+  --ss-space-6:  32px;
+  --ss-space-7:  48px;
+  --ss-space-8:  64px;
+  --ss-space-9:  96px;
+  --ss-space-10: 128px;
+
+  /* ---- Radius — soft corners ---- */
+  --ss-radius-sm:  6px;
+  --ss-radius-md:  10px;
+  --ss-radius-lg:  16px;
+  --ss-radius-xl:  24px;
+  --ss-radius-pill: 999px;
+
+  /* ---- Hairline weight ---- */
+  --ss-hairline-w: 1px;
+
+  /* ---- Layout ---- */
+  --ss-maxw:    1440px;   /* reference design width */
+  --ss-gutter:  clamp(20px, 1rem + 2.5vw, 64px); /* @kind spacing */
+
+  /* ---- Cut-shape corner (clip-path notch) — echoes the slipstream mark ---- */
+  --ss-notch: 14px;
+}

@@ -1,0 +1,10 @@
+/* ============================================================
+   Slipstream Design System · global entry point
+   Consumers link THIS one file. It is a list of @import lines
+   only — every token & @font-face lives in the files below.
+   ============================================================ */
+
+@import url("tokens/fonts.css");
+@import url("tokens/colors.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");

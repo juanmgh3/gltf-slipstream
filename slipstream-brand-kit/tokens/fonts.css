@@ -1,0 +1,29 @@
+/* ============================================================
+   Slipstream · Webfonts  (inherited from the parent architecture)
+   Display  → Clash Display (Fontshare)   — 600 / 700
+   Body/UI  → Mona Sans   (Google Fonts)  — variable 200..900 + italic
+   Mono     → Azeret Mono (local webfont) — variable 200..900 + italic
+              code, paths, raw values & all small print
+   ------------------------------------------------------------
+   @import lines MUST precede any other rule in the closure, so
+   the remote font CSS is pulled in here at the top.
+   ============================================================ */
+
+@import url("https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
+
+/* ---- Azeret Mono · self-hosted variable (200..900 + italic) ---- */
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("../assets/fonts/AzeretMono-Variable.woff2") format("woff2-variations");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("../assets/fonts/AzeretMono-VariableItalic.woff2") format("woff2-variations");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}

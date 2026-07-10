@@ -1,0 +1,86 @@
+/* ============================================================
+   Slipstream · Color tokens — dark-first, light secondary
+   ------------------------------------------------------------
+   Re-theme of the parent architecture: only the brand changes.
+   Three anchors → everything else is derived from them.
+     Dark  : bg #262626 · accent #F5B84B · text #FDFDFD
+     Light : bg #FDFDFD · accent #F5B84B · text #2E2E2E
+
+   THE ACCENT RULE (hold WCAG AAA):
+   - Amber is for LIVE / ACTIVE things only — never a large fill.
+   - DARK : amber #F5B84B is the live text/icon/line colour
+            (8.5:1 on #262626 → AAA). Use --ss-accent-text.
+   - LIGHT: amber fails on white (1.74:1). It appears ONLY as a
+            FILL with dark text on top (dark-on-amber = 8.5:1).
+            For emphasis TEXT in light, --ss-accent-text is #2E2E2E.
+   So: fills always use --ss-accent (amber) + --ss-accent-ink (dark).
+       Live text/lines always use --ss-accent-text (theme-aware).
+   ============================================================ */
+
+:root {
+  /* ---- Base surfaces — warm near-black ladder ---- */
+  --ss-bg:          #262626;   /* page, flat              */
+  --ss-surface:     #2E2E2E;   /* cards / panels          */
+  --ss-surface-2:   #383838;   /* nested / elevated cell  */
+
+  /* ---- Hairlines ---- */
+  --ss-border:        rgba(255, 255, 255, 0.08);  /* tinted thin border that draws cells */
+  --ss-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* ---- Text ---- */
+  --ss-text:        #FDFDFD;   /* near-white, primary     */
+  --ss-text-muted:  #A8A8A8;   /* labels / secondary      */
+  --ss-text-faint:  #6E6E6E;   /* tertiary / disabled     */
+
+  /* ---- Accent — amber, the "live" colour ---- */
+  --ss-accent:       #F5B84B;  /* canonical amber                       */
+  --ss-accent-ink:   #262626;  /* dark text that sits ON an amber fill  */
+  --ss-accent-text:  #F5B84B;  /* live/active TEXT, icons & key lines    */
+  --ss-accent-soft:  rgba(245, 184, 75, 0.12);  /* faint amber wash — sparing */
+  --ss-accent-line:  rgba(245, 184, 75, 0.40);  /* amber hairline / focus ring */
+
+  /* ---- Semantic status ---- */
+  --ss-positive:    #5BD08A;   /* success / "after" wins  */
+  --ss-warning:     #F5B84B;   /* shares the brand amber  */
+  --ss-danger:      #F2685E;   /* errors / destructive    */
+
+  /* ---- Semantic aliases (what components consume) ---- */
+  --ss-page-bg:        var(--ss-bg);
+  --ss-card-bg:        var(--ss-surface);
+  --ss-cell-bg:        var(--ss-surface-2);
+  --ss-hairline:       var(--ss-border);
+  --ss-hairline-strong:var(--ss-border-strong);
+  --ss-text-body:      var(--ss-text);
+  --ss-text-label:     var(--ss-text-muted);
+  --ss-live:           var(--ss-accent-text);
+  --ss-focus-ring:     var(--ss-accent-line);
+}
+
+/* ============================================================
+   LIGHT theme — apply data-theme="light" to <html> or any scope
+   ============================================================ */
+[data-theme="light"] {
+  --ss-bg:          #FDFDFD;
+  --ss-surface:     #F4F4F4;
+  --ss-surface-2:   #EAEAEA;
+
+  --ss-border:        rgba(0, 0, 0, 0.10);
+  --ss-border-strong: rgba(0, 0, 0, 0.18);
+
+  --ss-text:        #2E2E2E;
+  --ss-text-muted:  #6B6B6B;
+  --ss-text-faint:  #9A9A9A;
+
+  /* amber stays the fill colour; emphasis TEXT switches to dark */
+  --ss-accent:       #F5B84B;
+  --ss-accent-ink:   #2E2E2E;
+  --ss-accent-text:  #2E2E2E;   /* amber-on-white fails → use dark */
+  --ss-accent-soft:  rgba(245, 184, 75, 0.20);
+  --ss-accent-line:  rgba(46, 46, 46, 0.55);
+
+  --ss-positive:    #1F9D57;
+  --ss-warning:     #B5841F;
+  --ss-danger:      #D23B30;
+
+  --ss-focus-ring:  rgba(46, 46, 46, 0.45);
+}
