@@ -21,7 +21,19 @@ const CFG = {
   damping: 0.72,
   stretch: 0.9,
   emergeMs: 900,
+  // Split composition: copy block left on clean
+  // ground, the mark right at high opacity. On narrow screens the copy
+  // re-centres (optimizer.css), so the mark drops back behind it, faint.
+  // Fractions are of zone width/height for the GLYPH ink (bbox-cropped).
+  markW: 0.42,
+  markH: 0.9,
+  bgAlpha: 0.75,
+  anchorX: 0.74,
+  narrowMarkW: 0.8,
+  narrowBgAlpha: 0.28,
 } as const;
+
+const NARROW = 900; // matches the .dz-inner split breakpoint in optimizer.css
 
 interface Particle {
   hx: number;
@@ -48,19 +60,19 @@ interface Wave {
 }
 
 /**
- * Mounts the swarm. `canvas` covers the whole zone (so ripples have room);
- * `anchor` is the in-flow spacer whose box centers and sizes the mark.
- * Pointer listeners attach to `zone` — the canvas stays pointer-blind.
- * Returns a cleanup that stops the loop and detaches everything.
+ * Mounts the swarm. `canvas` covers the whole zone; the mark centres itself
+ * at markScale of the shorter side and renders at bgAlpha, a background the
+ * copy sits on. Pointer listeners attach to `zone` — the canvas stays
+ * pointer-blind. Returns a cleanup that stops the loop and detaches everything.
  */
 export function mountDropzoneParticles(
   zone: HTMLElement,
   canvas: HTMLCanvasElement,
-  anchor: HTMLElement,
   iconUrl: string,
 ): () => void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return () => {};
+  let alpha: number = CFG.bgAlpha; // per-build: narrow screens dim the mark
 
   let particles: Particle[] = [];
   let waves: Wave[] = [];
@@ -72,6 +84,31 @@ export function mountDropzoneParticles(
   let disposed = false;
 
   const img = new Image();
+  // The icon's viewBox carries generous padding — measure the ink's bounding
+  // box once (low-res probe) so the mark is sized by the glyph, not the canvas.
+  let bbox: { x: number; y: number; w: number; h: number } | null = null;
+
+  function measureBbox() {
+    const P = 256;
+    const probe = document.createElement('canvas');
+    probe.width = probe.height = P;
+    const pctx = probe.getContext('2d', { willReadFrequently: true });
+    if (!pctx) return;
+    pctx.drawImage(img, 0, 0, P, P);
+    const d = pctx.getImageData(0, 0, P, P).data;
+    let x0 = P, y0 = P, x1 = 0, y1 = 0;
+    for (let y = 0; y < P; y++) {
+      for (let x = 0; x < P; x++) {
+        if (d[(y * P + x) * 4 + 3] > 128) {
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 > x0) bbox = { x: x0 / P, y: y0 / P, w: (x1 - x0 + 1) / P, h: (y1 - y0 + 1) / P };
+  }
 
   function build() {
     const w = canvas.clientWidth;
@@ -81,24 +118,31 @@ export function mountDropzoneParticles(
     canvas.width = w * dpr;
     canvas.height = h * dpr;
 
-    // Mark box = the anchor's square, measured in canvas space.
-    const a = anchor.getBoundingClientRect();
-    const c = canvas.getBoundingClientRect();
-    const target = Math.floor(Math.min(a.width, a.height));
-    const ox = a.left - c.left + (a.width - target) / 2;
-    const oy = a.top - c.top + (a.height - target) / 2;
+    // Uniform SVG draw size D so the glyph ink fits the allowed box; the
+    // sampled region is just the ink's rectangle, right-anchored (split) or
+    // centred and dimmed on narrow screens.
+    const narrow = w < NARROW;
+    alpha = narrow ? CFG.narrowBgAlpha : CFG.bgAlpha;
+    const bb = bbox ?? { x: 0, y: 0, w: 1, h: 1 };
+    const markW = narrow ? CFG.narrowMarkW : CFG.markW;
+    const D = Math.floor(Math.min((w * markW) / bb.w, (h * CFG.markH) / bb.h));
+    const inkW = Math.ceil(D * bb.w);
+    const inkH = Math.ceil(D * bb.h);
+    const ox = narrow ? (w - inkW) / 2 : Math.min(w * CFG.anchorX - inkW / 2, w - inkW - 24);
+    const oy = (h - inkH) / 2;
 
     const off = document.createElement('canvas');
-    off.width = off.height = target;
+    off.width = inkW;
+    off.height = inkH;
     const octx = off.getContext('2d', { willReadFrequently: true });
     if (!octx) return;
-    octx.drawImage(img, 0, 0, target, target);
-    const data = octx.getImageData(0, 0, target, target).data;
+    octx.drawImage(img, -bb.x * D, -bb.y * D, D, D);
+    const data = octx.getImageData(0, 0, inkW, inkH).data;
 
     particles = [];
-    for (let y = 0; y < target; y += CFG.step) {
-      for (let x = 0; x < target; x += CFG.step) {
-        const i = (y * target + x) * 4;
+    for (let y = 0; y < inkH; y += CFG.step) {
+      for (let x = 0; x < inkW; x += CFG.step) {
+        const i = (y * inkW + x) * 4;
         if (data[i + 3] > 128) {
           const hx = ox + x;
           const hy = oy + y;
@@ -188,7 +232,7 @@ export function mountDropzoneParticles(
         if (emerge < 0.02) continue;
       }
       const size = CFG.size * p.s * (1 + zc * CFG.depth * 1.1) * (0.35 + 0.65 * emerge);
-      ctx!.globalAlpha = (1 - (1 - p.z) * CFG.depth * 0.62) * emerge;
+      ctx!.globalAlpha = (1 - (1 - p.z) * CFG.depth * 0.62) * emerge * alpha;
       ctx!.fillStyle = `rgb(${p.r},${p.g},${p.b})`;
       const speed = Math.hypot(p.vx, p.vy);
       if (CFG.stretch > 0 && speed > 1.5) {
@@ -246,6 +290,7 @@ export function mountDropzoneParticles(
 
   img.onload = () => {
     if (disposed) return;
+    measureBbox();
     build();
     raf = requestAnimationFrame(tick);
   };

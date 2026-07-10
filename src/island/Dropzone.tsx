@@ -27,7 +27,6 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
   const depth = useRef(0);
   const zoneRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const markRef = useRef<HTMLDivElement>(null);
 
   // SSR and reduced-motion render the static icon; the canvas swarm is a
   // hydration upgrade. Icon variant follows the active theme (sampled colors:
@@ -37,14 +36,9 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
     setFx(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
   useEffect(() => {
-    if (!fx || !zoneRef.current || !canvasRef.current || !markRef.current) return;
+    if (!fx || !zoneRef.current || !canvasRef.current) return;
     const light = document.documentElement.dataset.theme === 'light';
-    return mountDropzoneParticles(
-      zoneRef.current,
-      canvasRef.current,
-      markRef.current,
-      light ? iconLight : iconDark,
-    );
+    return mountDropzoneParticles(zoneRef.current, canvasRef.current, light ? iconLight : iconDark);
   }, [fx]);
 
   const take = (file: File | undefined) => {
@@ -74,14 +68,11 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
         take(e.dataTransfer?.files[0]);
       }}
     >
-      {/* Full-bleed particle canvas: ripples need the whole zone to travel.
-          Pointer-blind — the zone's own listeners drive it. */}
+      {/* The mark as a background element: full-bleed pointer-blind canvas,
+          swarm at real scale under translucency, copy legible on top. */}
       {fx && <canvas ref={canvasRef} class="dz-canvas" aria-hidden="true" />}
+      {!fx && <img class="dz-mark-static" src={iconDark} alt="" aria-hidden="true" />}
       <div class="dz-inner">
-        {/* Spacer that anchors the mark: the swarm homes to this box. */}
-        <div ref={markRef} class="dz-mark" aria-hidden="true">
-          {!fx && <img class="dz-mark-static" src={iconDark} alt="" width="180" height="180" />}
-        </div>
         <p class="dz-title">{busy ? 'Reading model…' : 'Drop a .glb or .gltf'}</p>
         <p class="dz-hint">or browse — self-contained .gltf works too</p>
         <input

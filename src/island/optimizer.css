@@ -33,15 +33,15 @@
   height: 100%;
   pointer-events: none;
 }
-.dz-mark {
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Reduced-motion / pre-hydration: same background read, statically. */
 .dz-mark-static {
-  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 85%;
+  translate: -50% -50%;
+  opacity: 0.14;
+  pointer-events: none;
 }
 
 .dropzone:hover {
@@ -67,6 +67,28 @@
   text-align: center;
   gap: var(--ss-space-3);
   padding: var(--ss-space-8) var(--ss-space-6);
+}
+/* Copy sits ON the swarm: a soft halo in the zone's own surface color keeps
+   every line legible without lightening the text or dimming the effect. */
+.dz-inner > p,
+.dz-inner > button {
+  text-shadow:
+    0 0 4px var(--ss-surface),
+    0 0 12px var(--ss-surface),
+    0 0 26px var(--ss-surface);
+}
+
+/* Split composition: copy block left on clean ground, the
+   swarm right at high opacity. Below 900px the copy re-centres and the
+   engine drops the mark behind it, faint (dropzoneParticles.ts NARROW). */
+@media (min-width: 900px) {
+  .dropzone .dz-inner {
+    margin: auto auto auto 0;
+    align-items: flex-start;
+    text-align: left;
+    max-width: 52%;
+    padding-inline: var(--ss-space-7) var(--ss-space-5);
+  }
 }
 
 .dz-title {
