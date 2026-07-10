@@ -1,0 +1,288 @@
+/* Optimizer island styles. Global by nature (Astro's style scoping can't reach
+   Preact-rendered DOM), namespaced by .dropzone / .dz-* / .report / .rp-*.
+   The dropzone treatment is the T4 shell design, moved here with the markup. */
+
+/* ---- Dropzone ---- */
+.dropzone {
+  position: relative;
+  min-height: min(440px, 56vh);
+  background: var(--ss-surface);
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ss-radius-xl)) 0,
+    100% var(--ss-radius-xl),
+    100% 100%,
+    0 100%
+  );
+  display: flex;
+  animation: island-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+/* Inner dashed guide, drawn as its own layer so the notch stays crisp */
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: var(--ss-space-3);
+  border: 1px dashed var(--ss-border-strong);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ss-radius-lg)) 0,
+    100% var(--ss-radius-lg),
+    100% 100%,
+    0 100%
+  );
+  transition: border-color 0.25s ease;
+  pointer-events: none;
+}
+
+.dropzone:hover {
+  border-color: var(--ss-accent-line);
+}
+.dropzone:hover::before {
+  border-color: var(--ss-accent-line);
+}
+
+/* Drag-over = live: the amber moment */
+.dropzone.is-over {
+  background: var(--ss-accent-soft);
+  border-color: var(--ss-accent);
+}
+.dropzone.is-over::before {
+  border-color: var(--ss-accent);
+}
+.dropzone.is-over .dz-glyph {
+  color: var(--ss-accent-text);
+  translate: 0 4px;
+}
+.dropzone.is-over .dz-title {
+  color: var(--ss-accent-text);
+}
+
+.dz-inner {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--ss-space-3);
+  padding: var(--ss-space-6);
+}
+
+.dz-glyph {
+  color: var(--ss-text-muted);
+  transition:
+    translate 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.25s ease;
+}
+.dropzone:hover .dz-glyph {
+  translate: 0 2px;
+}
+
+.dz-title {
+  font-family: var(--ss-font-display);
+  font-size: var(--ss-fs-h3);
+  font-weight: var(--ss-w-semibold);
+  transition: color 0.25s ease;
+}
+.dz-hint {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-faint);
+}
+
+.dz-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.dz-browse {
+  margin-top: var(--ss-space-3);
+  background: var(--ss-accent);
+  color: var(--ss-accent-ink);
+  font-weight: var(--ss-w-semibold);
+  font-size: var(--ss-fs-small);
+  padding: var(--ss-space-2) var(--ss-space-5);
+  cursor: pointer;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ss-notch)) 0,
+    100% var(--ss-notch),
+    100% 100%,
+    0 100%
+  );
+  transition: filter 0.15s ease, translate 0.15s ease;
+}
+.dz-browse:hover {
+  filter: brightness(1.06);
+  translate: 0 -1px;
+}
+.dz-browse:active {
+  translate: 0 0;
+  filter: brightness(0.97);
+}
+.dz-input:focus-visible + .dz-browse {
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+.dz-input:disabled + .dz-browse {
+  filter: saturate(0.4) brightness(0.8);
+  cursor: progress;
+}
+
+.dz-error {
+  max-width: 44ch;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  line-height: var(--ss-lh-snug);
+  color: var(--ss-danger);
+}
+
+.dz-privacy {
+  margin-top: var(--ss-space-2);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-faint);
+}
+
+/* ---- Model report (loaded state, same panel footprint) ---- */
+.report {
+  min-height: min(440px, 56vh);
+  background: var(--ss-surface);
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ss-radius-xl)) 0,
+    100% var(--ss-radius-xl),
+    100% 100%,
+    0 100%
+  );
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-5);
+  padding: var(--ss-space-6);
+  animation: island-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rp-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-1);
+  border-bottom: var(--ss-hairline-w) solid var(--ss-hairline);
+  padding-bottom: var(--ss-space-4);
+}
+
+/* "Loaded" is the live state → it carries the amber (accent-as-text rule). */
+.rp-status {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-accent-text);
+}
+.rp-status::before {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.6em;
+  background: var(--ss-accent);
+  border-radius: var(--ss-radius-pill);
+}
+
+.rp-name {
+  font-family: var(--ss-font-display);
+  font-size: var(--ss-fs-h3);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-tight);
+  overflow-wrap: anywhere;
+}
+.rp-size {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+}
+
+.rp-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ss-space-4);
+}
+.rp-stat dt {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-label);
+}
+.rp-stat dd {
+  margin: 0;
+  font-family: var(--ss-font-display);
+  font-size: var(--ss-fs-h3);
+  font-weight: var(--ss-w-semibold);
+}
+
+.rp-features {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+}
+
+.rp-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-2);
+  padding: 0;
+  list-style: none;
+}
+.rp-warnings li {
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  line-height: var(--ss-lh-snug);
+  color: var(--ss-warning);
+  padding-left: var(--ss-space-3);
+  border-left: 2px solid var(--ss-warning);
+}
+
+.rp-reset {
+  margin-top: auto;
+  align-self: flex-start;
+  background: none;
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+  padding: var(--ss-space-2) var(--ss-space-4);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.rp-reset:hover {
+  border-color: var(--ss-accent-line);
+  color: var(--ss-text-body);
+}
+
+@keyframes island-rise {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .dropzone,
+  .report {
+    min-height: 320px;
+  }
+}

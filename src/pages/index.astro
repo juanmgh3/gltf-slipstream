@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { Optimizer } from '../island/Optimizer';
 import icon from '../../slipstream-brand-kit/assets/logo/slipstream-icon-dark.svg?url';
 import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-lettering-dark.svg?url';
 ---
@@ -14,9 +15,8 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
       <p class="top-note">100% client-side · 0 uploads</p>
     </header>
 
-    {/* T4 design shell: the page IS the tool. The dropzone below is the visual
-        contract for the optimizer island — T13 replaces this markup with the
-        live island (worker, validation, analysis) on this exact design. */}
+    {/* The page IS the tool: the optimizer island (T13) owns the right-hand
+        panel — dropzone, validation, worker analysis, model report. */}
     <main class="stage">
       <section class="pitch">
         <p class="kicker">In-browser&nbsp;·&nbsp;glTF&nbsp;/&nbsp;GLB optimizer</p>
@@ -31,31 +31,7 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
         <p class="wire">KHR_draco_mesh_compression · EXT_texture_webp</p>
       </section>
 
-      <section class="dropzone" id="dropzone" aria-label="Load a model">
-        <div class="dz-inner">
-          <svg
-            class="dz-glyph"
-            viewBox="0 0 24 24"
-            width="40"
-            height="40"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 3v12"></path>
-            <path d="m7 10 5 5 5-5"></path>
-            <path d="M4 19h16"></path>
-          </svg>
-          <p class="dz-title">Drop your model</p>
-          <p class="dz-hint">.glb or self-contained .gltf</p>
-          <input class="dz-input" type="file" id="file-input" accept=".glb,.gltf" />
-          <label class="dz-browse" for="file-input">Browse files</label>
-          <p class="dz-privacy">Processed locally — nothing is uploaded.</p>
-        </div>
-      </section>
+      <Optimizer client:load />
     </main>
 
     <footer class="foot">
@@ -63,28 +39,6 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     </footer>
   </div>
 </Base>
-
-<script>
-  // Visual-only drag states for the T4 design checkpoint; the drop itself is
-  // wired in T13. preventDefault stops the browser from navigating to the file.
-  const dz = document.getElementById('dropzone')!;
-  let depth = 0;
-  dz.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    depth += 1;
-    dz.classList.add('is-over');
-  });
-  dz.addEventListener('dragover', (e) => e.preventDefault());
-  dz.addEventListener('dragleave', () => {
-    depth = Math.max(0, depth - 1);
-    if (depth === 0) dz.classList.remove('is-over');
-  });
-  dz.addEventListener('drop', (e) => {
-    e.preventDefault();
-    depth = 0;
-    dz.classList.remove('is-over');
-  });
-</script>
 
 <style>
   .shell {
@@ -186,142 +140,8 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     color: var(--ss-text-faint);
   }
 
-  /* ---- Dropzone ---- */
-  .dropzone {
-    position: relative;
-    min-height: min(440px, 56vh);
-    background: var(--ss-surface);
-    border: var(--ss-hairline-w) solid var(--ss-border-strong);
-    clip-path: polygon(
-      0 0,
-      calc(100% - var(--ss-radius-xl)) 0,
-      100% var(--ss-radius-xl),
-      100% 100%,
-      0 100%
-    );
-    display: flex;
-    transition:
-      background 0.25s ease,
-      border-color 0.25s ease;
-  }
-  /* Inner dashed guide, drawn as its own layer so the notch stays crisp */
-  .dropzone::before {
-    content: '';
-    position: absolute;
-    inset: var(--ss-space-3);
-    border: 1px dashed var(--ss-border-strong);
-    clip-path: polygon(
-      0 0,
-      calc(100% - var(--ss-radius-lg)) 0,
-      100% var(--ss-radius-lg),
-      100% 100%,
-      0 100%
-    );
-    transition: border-color 0.25s ease;
-    pointer-events: none;
-  }
-
-  .dropzone:hover {
-    border-color: var(--ss-accent-line);
-  }
-  .dropzone:hover::before {
-    border-color: var(--ss-accent-line);
-  }
-
-  /* Drag-over = live: the amber moment */
-  .dropzone.is-over {
-    background: var(--ss-accent-soft);
-    border-color: var(--ss-accent);
-  }
-  .dropzone.is-over::before {
-    border-color: var(--ss-accent);
-  }
-  .dropzone.is-over .dz-glyph {
-    color: var(--ss-accent-text);
-    translate: 0 4px;
-  }
-  .dropzone.is-over .dz-title {
-    color: var(--ss-accent-text);
-  }
-
-  .dz-inner {
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--ss-space-3);
-    padding: var(--ss-space-6);
-  }
-
-  .dz-glyph {
-    color: var(--ss-text-muted);
-    transition:
-      translate 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-      color 0.25s ease;
-  }
-  .dropzone:hover .dz-glyph {
-    translate: 0 2px;
-  }
-
-  .dz-title {
-    font-family: var(--ss-font-display);
-    font-size: var(--ss-fs-h3);
-    font-weight: var(--ss-w-semibold);
-    transition: color 0.25s ease;
-  }
-  .dz-hint {
-    font-family: var(--ss-font-mono);
-    font-size: var(--ss-fs-small);
-    color: var(--ss-text-faint);
-  }
-
-  .dz-input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .dz-browse {
-    margin-top: var(--ss-space-3);
-    background: var(--ss-accent);
-    color: var(--ss-accent-ink);
-    font-weight: var(--ss-w-semibold);
-    font-size: var(--ss-fs-small);
-    padding: var(--ss-space-2) var(--ss-space-5);
-    cursor: pointer;
-    clip-path: polygon(
-      0 0,
-      calc(100% - var(--ss-notch)) 0,
-      100% var(--ss-notch),
-      100% 100%,
-      0 100%
-    );
-    transition: filter 0.15s ease, translate 0.15s ease;
-  }
-  .dz-browse:hover {
-    filter: brightness(1.06);
-    translate: 0 -1px;
-  }
-  .dz-browse:active {
-    translate: 0 0;
-    filter: brightness(0.97);
-  }
-  .dz-input:focus-visible + .dz-browse {
-    outline: 2px solid var(--ss-focus-ring);
-    outline-offset: 2px;
-  }
-
-  .dz-privacy {
-    margin-top: var(--ss-space-2);
-    font-family: var(--ss-font-mono);
-    font-size: var(--ss-fs-kicker);
-    letter-spacing: var(--ss-tracking-kicker);
-    text-transform: uppercase;
-    color: var(--ss-text-faint);
-  }
+  /* Dropzone / report panel styles live with the island (src/island/optimizer.css) —
+     Astro's style scoping can't reach Preact-rendered DOM. */
 
   /* ---- Footer ---- */
   .foot {
@@ -337,7 +157,6 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
   /* ---- Load-in: one orchestrated pass, killed by reduced-motion ---- */
   .top,
   .pitch > *,
-  .dropzone,
   .foot {
     animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -345,7 +164,6 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
   .pitch > :nth-child(2) { animation-delay: 120ms; }
   .pitch > :nth-child(3) { animation-delay: 180ms; }
   .pitch > :nth-child(4) { animation-delay: 240ms; }
-  .dropzone { animation-delay: 300ms; }
   .foot { animation-delay: 380ms; }
 
   @keyframes rise {
@@ -366,9 +184,6 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
       gap: var(--ss-space-6);
       align-items: start;
       padding-block: var(--ss-space-6);
-    }
-    .dropzone {
-      min-height: 320px;
     }
     .top-note {
       display: none;

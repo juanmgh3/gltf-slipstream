@@ -8,6 +8,7 @@ import * as Comlink from 'comlink';
 import { analyzeDocument } from '../optimizer/analyze';
 import { createWebIO } from '../optimizer/draco';
 import { optimizeModel } from '../optimizer/optimize';
+import { readModel } from '../optimizer/read';
 import type { ModelReport, OptimizeResult, OptimizeSettings, Progress } from '../optimizer/types';
 
 export interface OptimizerWorkerApi {
@@ -26,7 +27,7 @@ const getIO = () => (ioPromise ??= createWebIO());
 const api: OptimizerWorkerApi = {
   async analyze(glb, fileName) {
     const io = await getIO();
-    const doc = await io.readBinary(new Uint8Array(glb));
+    const doc = await readModel(io, new Uint8Array(glb));
     return analyzeDocument(doc, { fileName, byteLength: glb.byteLength });
   },
 
