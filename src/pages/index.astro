@@ -30,12 +30,10 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
             Lighter models.<br />
             <span class="underlined">
               Same shape.
-              {/* Hand-drawn stroke, not a rule: two passes like a real pen —
-                  the main stroke and a short retouch tail. Inline SVG so the
-                  paths take kit tokens (stroke="var(--ss-accent)"). */}
+              {/* Hand-drawn stroke, not a rule — one pen pass. Inline SVG so
+                  the path takes kit tokens (stroke="var(--ss-accent)"). */}
               <svg class="sig" viewBox="0 0 320 26" preserveAspectRatio="none" aria-hidden="true">
                 <path class="sig-main" d="M5 15 C 38 7, 74 21, 122 14 C 164 8, 196 6, 234 12 C 262 16, 292 15, 315 9" />
-                <path class="sig-tail" d="M198 21 C 234 17, 268 20, 302 15" />
               </svg>
             </span>
           </h1>
@@ -283,21 +281,13 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     stroke-dashoffset: 340;
     animation: sig-write 0.55s cubic-bezier(0.4, 0, 0.3, 1) 0.75s forwards;
   }
-  .sig-tail {
-    stroke-width: 2.5;
-    opacity: 0.85;
-    stroke-dasharray: 110;
-    stroke-dashoffset: 110;
-    animation: sig-write 0.3s ease-out 1.35s forwards;
-  }
   @keyframes sig-write {
     to {
       stroke-dashoffset: 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .sig-main,
-    .sig-tail {
+    .sig-main {
       animation: none;
       stroke-dashoffset: 0;
     }

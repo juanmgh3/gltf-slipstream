@@ -1,8 +1,11 @@
 // Load surface: drag-and-drop AND file picker (T13). The idle hero mass (T12):
-// oversized target, cursor-following spotlight on hover, amber solid border on
-// drag-over — the live moment (accent rule).
+// oversized target, the icon as an interactive particle swarm (verdict
+// correction round), amber solid border on drag-over — the live moment.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
+import iconDark from '../../slipstream-brand-kit/assets/logo/slipstream-icon-dark.svg?url';
+import iconLight from '../../slipstream-brand-kit/assets/logo/slipstream-icon-light.svg?url';
+import { mountDropzoneParticles } from './dropzoneParticles';
 
 interface DropzoneProps {
   onFile: (file: File) => void;
@@ -22,9 +25,27 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
   // dragenter/dragleave fire for every child the cursor crosses; a depth counter
   // keeps the highlight stable until the pointer truly leaves the zone.
   const depth = useRef(0);
-  // Spotlight is written straight to the element's style, not to state — a
-  // pointermove-driven re-render for every frame would be wasteful.
   const zoneRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const markRef = useRef<HTMLDivElement>(null);
+
+  // SSR and reduced-motion render the static icon; the canvas swarm is a
+  // hydration upgrade. Icon variant follows the active theme (sampled colors:
+  // the dark icon's near-white dots would vanish on the light surface).
+  const [fx, setFx] = useState(false);
+  useEffect(() => {
+    setFx(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
+  useEffect(() => {
+    if (!fx || !zoneRef.current || !canvasRef.current || !markRef.current) return;
+    const light = document.documentElement.dataset.theme === 'light';
+    return mountDropzoneParticles(
+      zoneRef.current,
+      canvasRef.current,
+      markRef.current,
+      light ? iconLight : iconDark,
+    );
+  }, [fx]);
 
   const take = (file: File | undefined) => {
     if (file && !busy) onFile(file);
@@ -36,13 +57,6 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
       class={`dropzone${isOver ? ' is-over' : ''}`}
       data-testid="dropzone"
       aria-label="Load a model"
-      onPointerMove={(e) => {
-        const zone = zoneRef.current;
-        if (!zone) return;
-        const rect = zone.getBoundingClientRect();
-        zone.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-        zone.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-      }}
       onDragEnter={(e) => {
         e.preventDefault();
         depth.current += 1;
@@ -60,23 +74,14 @@ export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
         take(e.dataTransfer?.files[0]);
       }}
     >
+      {/* Full-bleed particle canvas: ripples need the whole zone to travel.
+          Pointer-blind — the zone's own listeners drive it. */}
+      {fx && <canvas ref={canvasRef} class="dz-canvas" aria-hidden="true" />}
       <div class="dz-inner">
-        <svg
-          class="dz-glyph"
-          viewBox="0 0 24 24"
-          width="40"
-          height="40"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 3v12" />
-          <path d="m7 10 5 5 5-5" />
-          <path d="M4 19h16" />
-        </svg>
+        {/* Spacer that anchors the mark: the swarm homes to this box. */}
+        <div ref={markRef} class="dz-mark" aria-hidden="true">
+          {!fx && <img class="dz-mark-static" src={iconDark} alt="" width="180" height="180" />}
+        </div>
         <p class="dz-title">{busy ? 'Reading model…' : 'Drop a .glb or .gltf'}</p>
         <p class="dz-hint">or browse — self-contained .gltf works too</p>
         <input
