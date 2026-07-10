@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Slipstream · Particles Lab (throwaway)</title>
+<style>
+  /* Throwaway lab — lives in public/, outside the no-raw-colors guard (src/ only).
+     Colors mirror the kit anchors by hand so the preview is truthful. */
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    display: flex; height: 100dvh; overflow: hidden;
+    background: #272522; color: #FDFDFD;
+    font-family: ui-monospace, "Azeret Mono", Consolas, monospace;
+  }
+  #stage { flex: 1; position: relative; cursor: crosshair; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hud {
+    position: absolute; top: 12px; left: 14px; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: #A8A8A8;
+  }
+  #hud b { color: #F5B84B; font-weight: 600; }
+  #panel {
+    width: 320px; overflow-y: auto; padding: 18px 16px 28px;
+    background: #2F2D29; border-left: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+  }
+  #panel h1 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #F5B84B; margin-bottom: 14px; }
+  .row { margin-bottom: 12px; }
+  .row label { display: flex; justify-content: space-between; color: #A8A8A8; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .row output { color: #FDFDFD; }
+  input[type="range"] { width: 100%; accent-color: #F5B84B; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    flex: 1; padding: 6px 0; background: none; color: #A8A8A8;
+    border: 1px solid rgba(255,255,255,0.16); border-radius: 999px;
+    font: inherit; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  }
+  .seg button.on { background: #F5B84B; color: #272522; border-color: #F5B84B; font-weight: 600; }
+  .actions { display: flex; gap: 8px; margin: 16px 0; }
+  .actions button {
+    flex: 1; padding: 8px 0; font: inherit; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; border-radius: 999px; border: 1px solid rgba(245,184,75,0.4);
+    background: none; color: #F5B84B;
+  }
+  .actions button.primary { background: #F5B84B; color: #272522; border-color: #F5B84B; font-weight: 600; }
+  #config { width: 100%; background: #272522; color: #A8A8A8; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px; font-size: 10px; line-height: 1.5; white-space: pre; overflow-x: auto; }
+  .hint { color: #6E6E6E; margin-top: 6px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div id="hud"><b>PARTICLES LAB</b> · <span id="fps">–</span> FPS · <span id="count">–</span> particles</div>
+</div>
+<aside id="panel">
+  <h1>Config</h1>
+  <div id="controls"></div>
+  <div class="row">
+    <label>Mode</label>
+    <div class="seg" id="modeSeg">
+      <button data-mode="repel" class="on">Repel</button>
+      <button data-mode="attract">Attract</button>
+    </div>
+  </div>
+  <div class="row">
+    <label>Color</label>
+    <div class="seg" id="colorSeg">
+      <button data-color="sampled" class="on">Sampled</button>
+      <button data-color="amber">Amber</button>
+      <button data-color="white">White</button>
+    </div>
+  </div>
+  <div class="row">
+    <label>Shape</label>
+    <div class="seg" id="shapeSeg">
+      <button data-shape="circle" class="on">Circle</button>
+      <button data-shape="square">Square</button>
+    </div>
+  </div>
+  <div class="actions">
+    <button id="reform" class="primary">Re-form</button>
+    <button id="scatter">Scatter</button>
+    <button id="copy">Copy config</button>
+  </div>
+  <pre id="config"></pre>
+  <p class="hint">Move the cursor over the stage. "Re-form" replays the load-in
+  assembly; "Scatter" throws every particle and lets the spring pull it home.
+  When it feels right, Copy config — that JSON drives the real component.</p>
+</aside>
+
+<script>
+const CFG = {
+  step: 5,           // sampling grid in px — lower = denser
+  size: 1.6,         // particle radius / half-side
+  scale: 0.62,       // logo size as fraction of the shorter stage side
+  radius: 110,       // cursor area of effect
+  force: 9,          // cursor push strength
+  stiffness: 0.06,   // spring pull toward home
+  damping: 0.86,     // velocity kept per frame (lower = more friction)
+  jitter: 0.06,      // idle life; 0 = perfectly still
+  formMs: 1400,      // assembly duration on load / re-form
+  mode: 'repel',
+  color: 'sampled',
+  shape: 'circle',
+};
+
+const SLIDERS = [
+  ['step', 2, 12, 1], ['size', 0.6, 4, 0.1], ['scale', 0.2, 0.95, 0.01],
+  ['radius', 30, 320, 5], ['force', 1, 30, 0.5], ['stiffness', 0.01, 0.2, 0.005],
+  ['damping', 0.7, 0.98, 0.01], ['jitter', 0, 0.5, 0.01], ['formMs', 200, 4000, 50],
+];
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const stage = document.getElementById('stage');
+let particles = [], mouse = { x: -1e4, y: -1e4 }, formStart = 0, dpr = 1, icon = null;
+
+function resize() {
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = stage.clientWidth * dpr;
+  canvas.height = stage.clientHeight * dpr;
+  if (icon) build();
+}
+
+// Sample the SVG: rasterize to an offscreen canvas at the target size, keep
+// pixels with alpha, one particle per grid cell, colored from the pixel.
+function build() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const target = Math.floor(Math.min(w, h) * CFG.scale);
+  const off = document.createElement('canvas');
+  off.width = off.height = target;
+  const octx = off.getContext('2d', { willReadFrequently: true });
+  octx.drawImage(icon, 0, 0, target, target);
+  const data = octx.getImageData(0, 0, target, target).data;
+  const ox = (w - target) / 2, oy = (h - target) / 2;
+  particles = [];
+  for (let y = 0; y < target; y += CFG.step) {
+    for (let x = 0; x < target; x += CFG.step) {
+      const i = (y * target + x) * 4;
+      if (data[i + 3] > 128) {
+        particles.push({
+          hx: ox + x, hy: oy + y,
+          x: Math.random() * w, y: Math.random() * h,
+          vx: 0, vy: 0,
+          delay: Math.random(),                       // staggered assembly
+          r: data[i], g: data[i + 1], b: data[i + 2],
+        });
+      }
+    }
+  }
+  document.getElementById('count').textContent = particles.length;
+  formStart = performance.now();
+}
+
+function scatter() {
+  for (const p of particles) {
+    const a = Math.random() * Math.PI * 2, v = 6 + Math.random() * 18;
+    p.vx += Math.cos(a) * v; p.vy += Math.sin(a) * v;
+  }
+}
+
+let frames = 0, fpsAt = performance.now();
+function tick(now) {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const formT = Math.min(1, (now - formStart) / CFG.formMs);
+  const amber = CFG.color === 'amber';
+  const white = CFG.color === 'white';
+  for (const p of particles) {
+    // During assembly, particles activate in a stagger; inactive ones wait offstage.
+    if (formT < p.delay) continue;
+    const dxm = p.x - mouse.x, dym = p.y - mouse.y;
+    const d2 = dxm * dxm + dym * dym, R = CFG.radius;
+    if (d2 < R * R && d2 > 0.01) {
+      const d = Math.sqrt(d2), push = (1 - d / R) * CFG.force;
+      const s = (CFG.mode === 'repel' ? 1 : -1) * push / d;
+      p.vx += dxm * s; p.vy += dym * s;
+    }
+    p.vx += (p.hx - p.x) * CFG.stiffness + (Math.random() - 0.5) * CFG.jitter;
+    p.vy += (p.hy - p.y) * CFG.stiffness + (Math.random() - 0.5) * CFG.jitter;
+    p.vx *= CFG.damping; p.vy *= CFG.damping;
+    p.x += p.vx; p.y += p.vy;
+    ctx.fillStyle = amber ? '#F5B84B' : white ? '#FDFDFD' : `rgb(${p.r},${p.g},${p.b})`;
+    if (CFG.shape === 'circle') {
+      ctx.beginPath(); ctx.arc(p.x, p.y, CFG.size, 0, 6.2832); ctx.fill();
+    } else {
+      ctx.fillRect(p.x - CFG.size, p.y - CFG.size, CFG.size * 2, CFG.size * 2);
+    }
+  }
+  frames++;
+  if (now - fpsAt > 500) {
+    document.getElementById('fps').textContent = Math.round(frames * 1000 / (now - fpsAt));
+    frames = 0; fpsAt = now;
+  }
+  requestAnimationFrame(tick);
+}
+
+// ---- UI ----
+const controls = document.getElementById('controls');
+for (const [key, min, max, stepv] of SLIDERS) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<label>${key}<output>${CFG[key]}</output></label>
+    <input type="range" min="${min}" max="${max}" step="${stepv}" value="${CFG[key]}">`;
+  const input = row.querySelector('input'), out = row.querySelector('output');
+  input.addEventListener('input', () => {
+    CFG[key] = Number(input.value); out.textContent = input.value;
+    if (key === 'step' || key === 'scale') build();
+    syncConfig();
+  });
+  controls.appendChild(row);
+}
+for (const [segId, prop] of [['modeSeg', 'mode'], ['colorSeg', 'color'], ['shapeSeg', 'shape']]) {
+  document.getElementById(segId).addEventListener('click', (e) => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    CFG[prop] = btn.dataset[prop];
+    for (const b of btn.parentElement.children) b.classList.toggle('on', b === btn);
+    syncConfig();
+  });
+}
+document.getElementById('reform').addEventListener('click', build);
+document.getElementById('scatter').addEventListener('click', scatter);
+document.getElementById('copy').addEventListener('click', () => navigator.clipboard.writeText(configJson()));
+function configJson() { return JSON.stringify(CFG, null, 2); }
+function syncConfig() { document.getElementById('config').textContent = configJson(); }
+
+stage.addEventListener('pointermove', (e) => {
+  const r = stage.getBoundingClientRect();
+  mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+});
+stage.addEventListener('pointerleave', () => { mouse.x = mouse.y = -1e4; });
+window.addEventListener('resize', resize);
+
+const img = new Image();
+img.onload = () => { icon = img; resize(); build(); requestAnimationFrame(tick); };
+img.src = '/particles-lab-icon.svg';
+syncConfig();
+</script>
+</body>
+</html>
