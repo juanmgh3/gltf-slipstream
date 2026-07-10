@@ -59,14 +59,15 @@ test.describe('design-elevation: compare wipe stage', () => {
     expect(initialValueNow).toBe('50');
     expect(initialWipe).toBeCloseTo(50, 0);
 
-    const stageBox = await stage.boundingBox();
+    // hover() waits for the handle to be actionable and scrolls it into view —
+    // hand-rolled viewport coordinates raced against late layout shifts under
+    // full-suite load (flaked at exactly aria-valuenow=50: the press missed).
+    await handle.hover();
+    await page.mouse.down();
+    const stageBox = await stage.boundingBox(); // re-read AFTER the scroll
     expect(stageBox).not.toBeNull();
     const targetX = stageBox!.x + stageBox!.width * 0.25; // drag to ~25%
     const midY = stageBox!.y + stageBox!.height / 2;
-
-    const handleBox = await handle.boundingBox();
-    await page.mouse.move(handleBox!.x + handleBox!.width / 2, midY);
-    await page.mouse.down();
     await page.mouse.move(targetX, midY, { steps: 8 });
     await page.mouse.up();
 
