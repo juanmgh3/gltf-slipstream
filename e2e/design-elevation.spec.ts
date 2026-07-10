@@ -191,3 +191,18 @@ test.describe('design-elevation: optimizing sectors', () => {
     await expect(page.getByRole('region', { name: /results/i })).toBeVisible({ timeout: 30_000 });
   });
 });
+
+// T11 acceptance: the done state leads with the savings delta as hero, and
+// the download CTA stays reachable by its accessible name.
+test.describe('design-elevation: results hero delta', () => {
+  test('the hero delta renders a signed percentage and the download CTA is present', async ({ page }) => {
+    await optimizeDense(page);
+
+    const results = page.getByRole('region', { name: /results/i });
+    const delta = results.getByTestId('rs-savings');
+    await expect(delta).toBeVisible();
+    await expect(delta).toHaveText(/^[−+]\d+(\.\d+)?%$/);
+
+    await expect(results.getByRole('link', { name: /download/i })).toBeVisible();
+  });
+});

@@ -664,13 +664,97 @@
   color: var(--ss-text-muted);
 }
 
-/* ---- Results view (T15) ---- */
-.rs-sizes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* ---- Results view (T15, re-dressed T11) ----
+   The delta is the hero: gradient TEXT (never a halo around the glyphs) on a
+   card that carries the glow instead — pillar 4's rule, literally. The card
+   is one of the notch's 2-3 reserved frames (pillar 3). Sizes flank it in
+   mono/tabular-nums; the breakdown below is two truthful before→after bars,
+   cold data colors only (--ss-positive/--ss-danger), never amber. */
+/* Results packs one more section (the hero) above the wipe stage than the
+   other states, so this view uses a tighter inter-section rhythm than
+   `.report`'s default gap — the stage still keeps its own 50vh floor. */
+.results {
   gap: var(--ss-space-4);
 }
+.rs-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ss-space-4);
+}
+/* Glow carrier: clip-path on .rs-hero-card would clip the card's own outer
+   box-shadow, so the amber emission lives one box up. */
+.rs-hero-glow {
+  flex: 1 1 260px;
+  box-shadow: var(--ss-glow-live);
+}
+.rs-hero-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  box-shadow: var(--ss-edge-lit);
+  padding: var(--ss-space-2) var(--ss-space-5);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ss-notch)) 0,
+    100% var(--ss-notch),
+    100% 100%,
+    0 100%
+  );
+}
+/* Contained top-anchored wash — the glow radiates from the CARD, not the glyphs. */
+.rs-hero-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ss-wash-top);
+  pointer-events: none;
+}
+.rs-hero-label {
+  position: relative;
+  margin: 0 0 var(--ss-space-1);
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
+  letter-spacing: var(--ss-tracking-kicker);
+  text-transform: uppercase;
+  color: var(--ss-text-label);
+}
+.rs-hero-delta {
+  position: relative;
+  margin: 0;
+  font-family: var(--ss-font-display);
+  /* Near --ss-fs-impact (hero scale): --ss-fs-impact is tuned for full-bleed
+     page headlines and would blow both this card's width (capped at
+     --ss-maxw's two-column shell) and the report's contained-panel height
+     (T9's over-extension rule — the compare stage still needs its 50vh
+     floor beneath this), so this clamp tops out much lower. */
+  font-size: clamp(2rem, 1.4rem + 1.6vw, 3.25rem);
+  font-weight: var(--ss-w-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ss-tracking-impact);
+  line-height: var(--ss-lh-tight);
+  /* Solid fallback for engines without background-clip:text; the gradient
+     paints over it wherever the property is supported. */
+  color: var(--ss-accent-text);
+  background: var(--ss-accent-grad);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rs-hero-sizes {
+  display: flex;
+  align-items: center;
+  gap: var(--ss-space-4);
+}
+.rs-size {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ss-space-1);
+}
 .rs-label {
+  margin: 0;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-kicker);
   letter-spacing: var(--ss-tracking-kicker);
@@ -678,37 +762,99 @@
   color: var(--ss-text-label);
 }
 .rs-value {
-  font-family: var(--ss-font-display);
-  font-size: var(--ss-fs-h2);
+  margin: 0;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-h3);
   font-weight: var(--ss-w-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--ss-text-body);
 }
-.rs-savings {
-  color: var(--ss-accent-text);
+.rs-arrow {
+  align-self: flex-end;
+  margin: 0 0 var(--ss-space-1);
+  color: var(--ss-text-muted);
+  font-family: var(--ss-font-mono);
 }
+
 .rs-breakdown {
   display: flex;
   flex-direction: column;
   gap: var(--ss-space-2);
   border-top: var(--ss-hairline-w) solid var(--ss-hairline);
-  padding-top: var(--ss-space-4);
+  padding-top: var(--ss-space-2);
 }
-.rs-part {
+.rs-bar-row {
   display: flex;
-  justify-content: space-between;
-  gap: var(--ss-space-4);
+  flex-direction: column;
+  gap: var(--ss-space-1);
 }
-.rs-part dt {
+.rs-bar-label {
+  margin: 0;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-kicker);
   letter-spacing: var(--ss-tracking-kicker);
   text-transform: uppercase;
-  color: var(--ss-text-label);
+  color: var(--ss-text-muted);
 }
-.rs-part dd {
+.rs-bar-track {
+  height: 8px;
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-hairline);
+  border-radius: var(--ss-radius-pill);
+  overflow: hidden;
+}
+.rs-bar-fill {
+  height: 100%;
+  /* Saved is the default story — positive, cold. */
+  background: var(--ss-positive);
+  transition: width 0.3s ease;
+}
+/* A grown category (e.g. lossless normal maps on the balanced preset) tells
+   the truth in --ss-danger — never clamped away, never amber. */
+.rs-bar-fill.is-grew {
+  background: var(--ss-danger);
+}
+.rs-bar-figures {
   margin: 0;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
+  font-variant-numeric: tabular-nums;
   color: var(--ss-text-muted);
+}
+.rs-saved {
+  color: var(--ss-positive);
+}
+.rs-grew {
+  color: var(--ss-danger);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-bar-fill {
+    transition: none;
+  }
+}
+
+/* Download is THE accent CTA (T11): pill (pillar 3's CTA tier, unlike the
+   notch-cornered .btn-accent elsewhere), lift 2px + live glow on hover. */
+.rs-cta {
+  clip-path: none;
+  border-radius: var(--ss-radius-pill);
+  transition:
+    filter 0.15s ease,
+    translate 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.rs-cta:hover {
+  translate: 0 -2px;
+  box-shadow: var(--ss-glow-live);
+}
+.rs-cta:focus-visible {
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-cta {
+    transition: none;
+  }
 }
 
 /* ---- Compare viewer (T8): slider wipe over one framed stage ----

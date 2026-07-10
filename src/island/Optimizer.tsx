@@ -4,7 +4,7 @@
 // when the run path lands.
 
 import * as Comlink from 'comlink';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import type {
   ModelReport,
   OptimizeResult,
@@ -17,6 +17,7 @@ import { validateModelInput } from '../optimizer/validate';
 import { Controls } from './Controls';
 import { Dropzone } from './Dropzone';
 import { formatBytes, int } from './format';
+import { useCountUp } from './hooks';
 import { Results } from './Results';
 import { TextureList } from './TextureList';
 import { createOptimizerClient, type OptimizerClient } from './workerClient';
@@ -180,31 +181,6 @@ function OptimizingView({ progress }: { progress: Progress | null }) {
       <p class="op-ticker">{ticker}</p>
     </section>
   );
-}
-
-// Count-up on STATE ENTRY only: the effect keys off `target`, which is fixed
-// for the lifetime of a mounted instrument card (a fresh model remounts
-// LoadedView via the `key={loadSeq.current}` in Optimizer), so re-renders
-// caused by unrelated state (preset, overrides) never restart the animation.
-// prefers-reduced-motion snaps straight to the final value.
-function useCountUp(target: number, ms = 600): number {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setValue(target);
-      return;
-    }
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / ms);
-      setValue(target * (1 - (1 - p) ** 3));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, ms]);
-  return value;
 }
 
 interface LoadedViewProps {
