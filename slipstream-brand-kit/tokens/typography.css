@@ -6,7 +6,8 @@
 
    FLUID SCALE PRINCIPLE — design at a 1440px reference and let
    everything scale proportionally with clamp() between 1024px
-   and 1920px, rather than jumping at breakpoints.
+   and 2560px, rather than jumping at breakpoints. 2560 is a
+   first-class viewport: the scale must not freeze at 1920.
    ============================================================ */
 
 :root {
@@ -21,14 +22,14 @@
   --ss-w-semibold: 600; /* @kind other */
   --ss-w-bold:     700; /* @kind other */
 
-  /* ---- Fluid scale (clamp: min @1024 → max @1920) ---- */
-  --ss-fs-impact: clamp(4rem, 1.6rem + 6.0vw, 9rem);       /* @kind other */ /* Clash Display 600/700 */
-  --ss-fs-h1:     clamp(2.25rem, 1.6rem + 1.6vw, 3rem);    /* @kind other */ /* Mona Sans 700 */
-  --ss-fs-h2:     clamp(1.6rem, 1.25rem + 0.9vw, 2rem);    /* @kind other */ /* Mona Sans 600 */
-  --ss-fs-h3:     clamp(1.25rem, 1.05rem + 0.5vw, 1.5rem); /* @kind other */ /* Mona Sans 600 */
-  --ss-fs-body:   clamp(1rem, 0.95rem + 0.18vw, 1.125rem); /* @kind other */ /* Mona Sans 400 */
-  --ss-fs-small:  0.875rem;                                /* @kind other */ /* Azeret Mono 400 · small print */
-  --ss-fs-kicker: 0.625rem;                                /* @kind other */ /* Azeret Mono 600 · CAPS */
+  /* ---- Fluid scale (clamp: min @1024 → max @2560) ---- */
+  --ss-fs-impact: clamp(4rem, 1.6rem + 6.0vw, 11.2rem);     /* @kind other */ /* Clash Display 600/700 */
+  --ss-fs-h1:     clamp(2.25rem, 1.6rem + 1.6vw, 4.16rem);  /* @kind other */ /* Mona Sans 700 */
+  --ss-fs-h2:     clamp(1.6rem, 1.25rem + 0.9vw, 2.69rem);  /* @kind other */ /* Mona Sans 600 */
+  --ss-fs-h3:     clamp(1.25rem, 1.05rem + 0.5vw, 1.85rem); /* @kind other */ /* Mona Sans 600 */
+  --ss-fs-body:   clamp(1rem, 0.95rem + 0.18vw, 1.24rem);   /* @kind other */ /* Mona Sans 400 */
+  --ss-fs-small:  clamp(0.875rem, 0.82rem + 0.06vw, 0.92rem); /* @kind other */ /* Azeret Mono 400 · small print */
+  --ss-fs-kicker: clamp(0.625rem, 0.585rem + 0.045vw, 0.66rem); /* @kind other */ /* Azeret Mono 600 · CAPS */
 
   /* ---- Line heights ---- */
   --ss-lh-tight:   0.96; /* @kind other */

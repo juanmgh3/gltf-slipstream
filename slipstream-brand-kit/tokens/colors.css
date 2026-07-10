@@ -3,8 +3,10 @@
    ------------------------------------------------------------
    Re-theme of the parent architecture: only the brand changes.
    Three anchors → everything else is derived from them.
-     Dark  : bg #262626 · accent #F5B84B · text #FDFDFD
+     Dark  : bg #272522 · accent #F5B84B · text #FDFDFD
      Light : bg #FDFDFD · accent #F5B84B · text #2E2E2E
+   (Dark ladder is chroma-shifted a hair toward the amber hue —
+    warm charcoal, not neutral gray. See direction-proposal.md.)
 
    THE ACCENT RULE (hold WCAG AAA):
    - Amber is for LIVE / ACTIVE things only — never a large fill.
@@ -19,9 +21,9 @@
 
 :root {
   /* ---- Base surfaces — warm near-black ladder ---- */
-  --ss-bg:          #262626;   /* page, flat              */
-  --ss-surface:     #2E2E2E;   /* cards / panels          */
-  --ss-surface-2:   #383838;   /* nested / elevated cell  */
+  --ss-bg:          #272522;   /* page, warm charcoal     */
+  --ss-surface:     #2F2D29;   /* cards / panels          */
+  --ss-surface-2:   #393631;   /* nested / elevated cell  */
 
   /* ---- Hairlines ---- */
   --ss-border:        rgba(255, 255, 255, 0.08);  /* tinted thin border that draws cells */
@@ -34,7 +36,7 @@
 
   /* ---- Accent — amber, the "live" colour ---- */
   --ss-accent:       #F5B84B;  /* canonical amber                       */
-  --ss-accent-ink:   #262626;  /* dark text that sits ON an amber fill  */
+  --ss-accent-ink:   #272522;  /* dark text that sits ON an amber fill  */
   --ss-accent-text:  #F5B84B;  /* live/active TEXT, icons & key lines    */
   --ss-accent-soft:  rgba(245, 184, 75, 0.12);  /* faint amber wash — sparing */
   --ss-accent-line:  rgba(245, 184, 75, 0.40);  /* amber hairline / focus ring */
@@ -43,6 +45,15 @@
   --ss-positive:    #5BD08A;   /* success / "after" wins  */
   --ss-warning:     #F5B84B;   /* shares the brand amber  */
   --ss-danger:      #F2685E;   /* errors / destructive    */
+
+  /* ---- Light & depth ("Pit wall at night" — direction-proposal.md) ----
+     Washes/glows are top-anchored and contained per zone, never full-page.
+     Glow is a scarce budget: it radiates from LIVE things only. */
+  --ss-wash-top:     radial-gradient(ellipse 70% 52% at 50% 0%, rgba(245, 184, 75, 0.08), transparent 62%);
+  --ss-edge-lit:     inset 0 1px 0 rgba(255, 255, 255, 0.09);   /* lit top edge on cards   */
+  --ss-glow-live:    0 0 28px -6px rgba(245, 184, 75, 0.35);    /* emits from live things  */
+  --ss-shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.5);      /* true floats only        */
+  --ss-accent-grad:  linear-gradient(180deg, #F5B84B, #E8A93C); /* hero figure text only   */
 
   /* ---- Semantic aliases (what components consume) ---- */
   --ss-page-bg:        var(--ss-bg);
@@ -83,4 +94,11 @@
   --ss-danger:      #D23B30;
 
   --ss-focus-ring:  rgba(46, 46, 46, 0.45);
+
+  /* Light & depth — light theme */
+  --ss-wash-top:     radial-gradient(ellipse 70% 52% at 50% 0%, rgba(245, 184, 75, 0.12), transparent 62%);
+  --ss-edge-lit:     inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --ss-glow-live:    0 0 28px -6px rgba(245, 184, 75, 0.45);
+  --ss-shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.22);
+  --ss-accent-grad:  linear-gradient(180deg, #F5B84B, #E8A93C);
 }

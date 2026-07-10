@@ -1,8 +1,9 @@
 /* ============================================================
    Slipstream · Spacing, radius & layout tokens  (inherited)
-   Strict grid, generous breathing room. Flat design — no heavy
-   shadows, blurs or gradients (performance as an aesthetic).
-   8px base rhythm.
+   Strict grid, generous breathing room. 8px base rhythm.
+   Depth & light are budgeted, not banned — contained washes, lit
+   edges and scarce live glow per direction-proposal.md ("Pit wall
+   at night"); blur/glass stays out.
    ============================================================ */
 
 :root {
@@ -18,7 +19,8 @@
   --ss-space-9:  96px;
   --ss-space-10: 128px;
 
-  /* ---- Radius — soft corners ---- */
+  /* ---- Radius — tiered by component size; sharp = raw data ---- */
+  --ss-radius-xs:  2px;   /* telemetry chips / raw-value tags — deliberately sharp */
   --ss-radius-sm:  6px;
   --ss-radius-md:  10px;
   --ss-radius-lg:  16px;

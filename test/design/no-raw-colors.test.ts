@@ -19,7 +19,7 @@ const COLOR_LITERAL = /(?:#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|color
 // each entry is an exact file + substring match.
 const ALLOWLIST: Array<{ file: string; snippet: string }> = [
   // The PWA/browser chrome color can't consume a CSS custom property.
-  { file: join('src', 'layouts', 'Base.astro'), snippet: 'name="theme-color" content="#262626"' },
+  { file: join('src', 'layouts', 'Base.astro'), snippet: 'name="theme-color" content="#272522"' },
 ];
 
 function isAllowed(file: string, line: string): boolean {
