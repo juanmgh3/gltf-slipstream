@@ -18,3 +18,8 @@ playwright-report/
 
 # Gitignored local copy of helmet-livery reference files (never edited, never committed)
 reference/
+
+# Stray models at the repo root (local test inputs). The committed demo lives in
+# public/demo/ and must be CC0/CC-BY — see public/demo/ATTRIBUTION.md.
+/*.glb
+/*.gltf

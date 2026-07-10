@@ -135,6 +135,34 @@
   cursor: progress;
 }
 
+/* Click-to-try: deliberately quiet next to the browse CTA — a mono text link. */
+.dz-demo {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--ss-font-mono);
+  font-size: var(--ss-fs-small);
+  color: var(--ss-text-muted);
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: var(--ss-border-strong);
+  text-underline-offset: 0.35em;
+  cursor: pointer;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.dz-demo:hover {
+  color: var(--ss-accent-text);
+  text-decoration-color: var(--ss-accent-line);
+}
+.dz-demo:focus-visible {
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+.dz-demo:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
 .dz-error {
   max-width: 44ch;
   font-family: var(--ss-font-mono);

@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 
 interface DropzoneProps {
   onFile: (file: File) => void;
+  /** Click-to-try: load the bundled demo model through the same path as a drop. */
+  onDemo: () => void;
   /** True while a file is being read/analyzed — input is ignored meanwhile. */
   busy: boolean;
   error?: string;
 }
 
-export function Dropzone({ onFile, busy, error }: DropzoneProps) {
+export function Dropzone({ onFile, onDemo, busy, error }: DropzoneProps) {
   const [isOver, setOver] = useState(false);
   // The input is server-rendered disabled and only enabled once this effect runs
   // after hydration — a file picked before the change handler exists would be lost.
@@ -81,6 +83,16 @@ export function Dropzone({ onFile, busy, error }: DropzoneProps) {
         <label class="dz-browse" for="file-input">
           Browse files
         </label>
+        {/* Same hydration gate as the input: a pre-hydration click has no handler. */}
+        <button
+          class="dz-demo"
+          type="button"
+          data-testid="demo-button"
+          disabled={busy || !ready}
+          onClick={onDemo}
+        >
+          no model handy? try NASA&rsquo;s Perseverance rover
+        </button>
         {error && (
           <p class="dz-error" role="alert">
             {error}

@@ -30,6 +30,11 @@ type OptimizerState =
 
 const IDLE: OptimizerState = { phase: 'idle', busy: false };
 
+// Bundled demo (CC0, NASA/JPL-Caltech — see public/demo/ATTRIBUTION.md). Click-to-try
+// fetches it and pushes it through the exact same path as a dropped file.
+const DEMO_URL = '/demo/perseverance.glb';
+const DEMO_FILE_NAME = 'perseverance.glb';
+
 export function Optimizer() {
   const [state, setState] = useState<OptimizerState>(IDLE);
   // Lazy: `Worker` only exists in the browser, and client:load SSRs this
@@ -58,6 +63,18 @@ export function Optimizer() {
         busy: false,
         error: 'Could not read this model — the file may be corrupt or use an unsupported layout.',
       });
+    }
+  }
+
+  async function handleDemo() {
+    setState({ phase: 'idle', busy: true });
+    try {
+      const response = await fetch(DEMO_URL);
+      if (!response.ok) throw new Error(`demo fetch failed: ${response.status}`);
+      const file = new File([await response.blob()], DEMO_FILE_NAME, { type: 'model/gltf-binary' });
+      await handleFile(file);
+    } catch {
+      setState({ phase: 'idle', busy: false, error: 'Could not load the demo model — please retry.' });
     }
   }
 
@@ -110,7 +127,7 @@ export function Optimizer() {
       />
     );
   }
-  return <Dropzone onFile={handleFile} busy={state.busy} error={state.error} />;
+  return <Dropzone onFile={handleFile} onDemo={handleDemo} busy={state.busy} error={state.error} />;
 }
 
 const PHASE_LABEL: Record<Progress['phase'], string> = {
