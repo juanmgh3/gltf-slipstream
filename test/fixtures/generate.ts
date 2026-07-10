@@ -30,18 +30,18 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   dv.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)));
   return out;
 }
-function solidPNG(size: number, r: number, g: number, b: number): Uint8Array {
+export function solidPNG(width: number, r: number, g: number, b: number, height = width): Uint8Array {
   const ihdr = new Uint8Array(13);
   const dv = new DataView(ihdr.buffer);
-  dv.setUint32(0, size);
-  dv.setUint32(4, size);
+  dv.setUint32(0, width);
+  dv.setUint32(4, height);
   ihdr[8] = 8; // bit depth
   ihdr[9] = 2; // color type: RGB
-  const stride = size * 3;
-  const raw = new Uint8Array(size * (stride + 1));
-  for (let y = 0; y < size; y++) {
+  const stride = width * 3;
+  const raw = new Uint8Array(height * (stride + 1));
+  for (let y = 0; y < height; y++) {
     const row = y * (stride + 1) + 1;
-    for (let x = 0; x < size; x++) {
+    for (let x = 0; x < width; x++) {
       raw[row + x * 3] = r;
       raw[row + x * 3 + 1] = g;
       raw[row + x * 3 + 2] = b;
