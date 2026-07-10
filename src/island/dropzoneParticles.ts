@@ -12,7 +12,7 @@ const CFG = {
   depth: 0.8,
   float: 0.35,
   parallax: 1,
-  radius: 65,
+  radius: 45,
   force: 11,
   clickRadius: 230,
   clickForce: 6,
