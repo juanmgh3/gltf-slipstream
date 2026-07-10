@@ -15,7 +15,6 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
         </div>
         {/* Permanent — visible in every state, never scrolls out of reach. */}
         <p class="privacy-kicker" data-testid="privacy-kicker">
-          <span class="live-dot" aria-hidden="true"></span>
           100% local &middot; nothing leaves your machine
         </p>
       </div>
@@ -29,7 +28,16 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
           <p class="kicker">In-browser&nbsp;·&nbsp;glTF&nbsp;/&nbsp;GLB optimizer</p>
           <h1 class="headline">
             Lighter models.<br />
-            <span class="underlined">Same shape.</span>
+            <span class="underlined">
+              Same shape.
+              {/* Hand-drawn stroke, not a rule: two passes like a real pen —
+                  the main stroke and a short retouch tail. Inline SVG so the
+                  paths take kit tokens (stroke="var(--ss-accent)"). */}
+              <svg class="sig" viewBox="0 0 320 26" preserveAspectRatio="none" aria-hidden="true">
+                <path class="sig-main" d="M5 15 C 38 7, 74 21, 122 14 C 164 8, 196 6, 234 12 C 262 16, 292 15, 315 9" />
+                <path class="sig-tail" d="M198 21 C 234 17, 268 20, 302 15" />
+              </svg>
+            </span>
           </h1>
           <p class="lede">
             DRACO geometry compression and WebP textures, processed entirely in
@@ -197,23 +205,12 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     gap: var(--ss-space-3);
   }
   .privacy-kicker {
-    display: flex;
-    align-items: center;
-    gap: var(--ss-space-2);
     font-family: var(--ss-font-mono);
     font-size: var(--ss-fs-kicker);
     font-weight: var(--ss-w-semibold);
     letter-spacing: var(--ss-tracking-kicker);
     text-transform: uppercase;
     color: var(--ss-text-muted);
-  }
-  .live-dot {
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: var(--ss-radius-pill);
-    background: var(--ss-accent);
-    box-shadow: var(--ss-glow-live);
-    flex-shrink: 0;
   }
 
   /* ---- Hero: the tool fills the first viewport ---- */
@@ -223,20 +220,25 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     display: flex;
     background: var(--ss-wash-top);
   }
+  /* Vertical hierarchy: the eye drops headline → dropzone, one axis. The
+     pitch centres; the island stretches and the dropzone caps itself
+     (optimizer.css) so it reads as a target, not a banner. */
   .hero-in {
     flex: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    align-items: center;
-    gap: var(--ss-space-8);
-    padding-block: var(--ss-space-7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--ss-space-7);
+    padding-block: var(--ss-space-6);
   }
 
   .pitch {
+    align-self: center;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--ss-space-5);
+    align-items: center;
+    text-align: center;
+    gap: var(--ss-space-4);
   }
 
   .kicker {
@@ -256,31 +258,53 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
     letter-spacing: var(--ss-tracking-impact);
   }
 
-  /* The promise gets the live line: an amber rule that draws itself in. */
+  /* The promise gets the live line: a hand-drawn amber stroke that writes
+     itself in like a signature. */
   .underlined {
     position: relative;
     display: inline-block;
   }
-  .underlined::after {
-    content: '';
+  .sig {
     position: absolute;
-    left: 0.04em;
-    right: 0.08em;
-    bottom: -0.06em;
-    height: 0.055em;
-    background: var(--ss-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    animation: draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+    left: -0.03em;
+    bottom: -0.22em;
+    width: 103%;
+    height: 0.26em;
+    overflow: visible;
   }
-  @keyframes draw {
+  .sig path {
+    fill: none;
+    stroke: var(--ss-accent);
+    stroke-linecap: round;
+  }
+  .sig-main {
+    stroke-width: 5;
+    stroke-dasharray: 340;
+    stroke-dashoffset: 340;
+    animation: sig-write 0.55s cubic-bezier(0.4, 0, 0.3, 1) 0.75s forwards;
+  }
+  .sig-tail {
+    stroke-width: 2.5;
+    opacity: 0.85;
+    stroke-dasharray: 110;
+    stroke-dashoffset: 110;
+    animation: sig-write 0.3s ease-out 1.35s forwards;
+  }
+  @keyframes sig-write {
     to {
-      transform: scaleX(1);
+      stroke-dashoffset: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sig-main,
+    .sig-tail {
+      animation: none;
+      stroke-dashoffset: 0;
     }
   }
 
   .lede {
-    max-width: 42ch;
+    max-width: 52ch;
     color: var(--ss-text-muted);
     line-height: var(--ss-lh-relaxed);
   }
@@ -416,9 +440,8 @@ import lettering from '../../slipstream-brand-kit/assets/logo/slipstream-letteri
   /* ---- Mobile ---- */
   @media (max-width: 900px) {
     .hero-in {
-      grid-template-columns: 1fr;
       gap: var(--ss-space-6);
-      align-items: start;
+      justify-content: flex-start;
       padding-block: var(--ss-space-6);
     }
     .fold-cards {

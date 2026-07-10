@@ -9,7 +9,12 @@
   --spot-y: 50%;
   position: relative;
   overflow: hidden;
-  min-height: min(560px, 64vh);
+  /* In the vertical hero the island spans the console column; the dropzone
+     caps itself and centres so it reads as a target, not a banner. */
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+  min-height: min(480px, 56vh);
   background: var(--ss-surface);
   border: 1px dashed var(--ss-border-strong);
   border-radius: var(--ss-radius-lg);
