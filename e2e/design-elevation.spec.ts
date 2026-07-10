@@ -232,6 +232,13 @@ test.describe('design-elevation: page shell', () => {
     await expect(attribution).toContainText(/CC0/i);
   });
 
+  test('the header links to the GitHub repo', async ({ page }) => {
+    await page.goto('/');
+    const gh = page.getByRole('link', { name: 'View source on GitHub' });
+    await expect(gh).toBeVisible();
+    await expect(gh).toHaveAttribute('href', 'https://github.com/juanmgh3/gltf-slipstream');
+  });
+
   for (const viewport of [
     { width: 2560, height: 1440 },
     { width: 1440, height: 900 },
