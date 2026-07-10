@@ -165,6 +165,50 @@ export async function animOnlyGlb(): Promise<Uint8Array> {
   return new NodeIO().writeBinary(doc);
 }
 
+/**
+ * Dense textured grid (default 49×49 = 2 401 verts): enough real geometry that
+ * DRACO + WebP must beat the container overhead — the "output is smaller"
+ * acceptance criterion is meaningless on the tiny quad fixtures above.
+ */
+export async function denseGlb(segments = 48): Promise<Uint8Array> {
+  const doc = new Document();
+  const buf = doc.createBuffer();
+  const side = segments + 1;
+  const position = new Float32Array(side * side * 3);
+  const normal = new Float32Array(side * side * 3);
+  const uv = new Float32Array(side * side * 2);
+  for (let y = 0; y < side; y++) {
+    for (let x = 0; x < side; x++) {
+      const i = y * side + x;
+      // Non-planar height so positions carry real entropy for the encoder.
+      position.set([x / segments, y / segments, Math.sin(x * 0.7) * Math.cos(y * 0.5) * 0.1], i * 3);
+      normal.set([0, 0, 1], i * 3);
+      uv.set([x / segments, y / segments], i * 2);
+    }
+  }
+  const index = new Uint32Array(segments * segments * 6);
+  let o = 0;
+  for (let y = 0; y < segments; y++) {
+    for (let x = 0; x < segments; x++) {
+      const a = y * side + x;
+      index.set([a, a + 1, a + side, a + 1, a + side + 1, a + side], o);
+      o += 6;
+    }
+  }
+  const material = doc
+    .createMaterial('mat')
+    .setBaseColorTexture(doc.createTexture('base').setImage(solidPNG(64, 180, 120, 60)).setMimeType('image/png'));
+  const prim = doc
+    .createPrimitive()
+    .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(position).setBuffer(buf))
+    .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(normal).setBuffer(buf))
+    .setAttribute('TEXCOORD_0', doc.createAccessor().setType('VEC2').setArray(uv).setBuffer(buf))
+    .setIndices(doc.createAccessor().setType('SCALAR').setArray(index).setBuffer(buf))
+    .setMaterial(material);
+  doc.createScene('scene').addChild(doc.createNode('grid').setMesh(doc.createMesh('grid').addPrimitive(prim)));
+  return new NodeIO().writeBinary(doc);
+}
+
 /** Self-contained glTF JSON: buffer + image embedded as base64 data URIs — T5 must accept. */
 export function embeddedGltf(): Uint8Array {
   const positions = new Float32Array([0, 0, 0, 1, 0, 0, 1, 1, 0]);

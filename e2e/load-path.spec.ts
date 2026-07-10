@@ -8,13 +8,17 @@ import { embeddedGltf, junkBytes, plainGlb } from '../test/fixtures/generate';
 const report = (page: Page) => page.getByRole('region', { name: /model report/i });
 
 async function pickFile(page: Page, name: string, bytes: Uint8Array, mimeType: string) {
-  await page
-    .getByTestId('file-input')
-    .setInputFiles({ name, mimeType, buffer: Buffer.from(bytes) });
+  const input = page.getByTestId('file-input');
+  // The input is server-rendered disabled and enabled on hydration. setInputFiles
+  // does NOT wait for enabled (verified), so gate explicitly — a file set before
+  // the change handler exists is silently lost, exactly like a too-early real user.
+  await expect(input).toBeEnabled();
+  await input.setInputFiles({ name, mimeType, buffer: Buffer.from(bytes) });
 }
 
 /** Real `drop` event on the dropzone, carrying a File built inside the page. */
 async function dropFile(page: Page, name: string, bytes: Uint8Array) {
+  await expect(page.getByTestId('file-input')).toBeEnabled(); // hydration gate, as above
   const dataTransfer = await page.evaluateHandle(
     ({ data, fileName }) => {
       const dt = new DataTransfer();

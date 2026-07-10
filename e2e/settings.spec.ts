@@ -8,9 +8,9 @@ import { plainGlb } from '../test/fixtures/generate';
 
 async function loadPlain(page: Page) {
   await page.goto('/');
-  await page
-    .getByTestId('file-input')
-    .setInputFiles({ name: 'plain.glb', mimeType: 'model/gltf-binary', buffer: Buffer.from(await plainGlb()) });
+  const input = page.getByTestId('file-input');
+  await expect(input).toBeEnabled(); // hydration gate — setInputFiles ignores disabled
+  await input.setInputFiles({ name: 'plain.glb', mimeType: 'model/gltf-binary', buffer: Buffer.from(await plainGlb()) });
   await expect(page.getByRole('region', { name: /model report/i })).toBeVisible();
 }
 
