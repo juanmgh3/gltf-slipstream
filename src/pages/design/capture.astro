@@ -1,0 +1,10 @@
+---
+// Throwaway capture route for the design-elevation fixture (deleted at
+// convergence). Driven by e2e/capture-fixture.spec.ts under CAPTURE_FIXTURE=1.
+import Base from '../../layouts/Base.astro';
+import { Capture } from './_Capture';
+---
+
+<Base title="Slipstream — design fixture capture">
+  <Capture client:load />
+</Base>
