@@ -547,47 +547,118 @@
   color: var(--ss-text-muted);
 }
 
-/* ---- Compare viewer (T16) ---- */
-.compare {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ss-space-3);
-  border-top: var(--ss-hairline-w) solid var(--ss-hairline);
-  padding-top: var(--ss-space-4);
-}
-.cv-pane {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ss-space-2);
-  min-width: 0;
+/* ---- Compare viewer (T8): slider wipe over one framed stage ----
+   Chrome per the "pit wall at night" direction: lg radius, hairline border,
+   float shadow + lit top edge (the two combine as one comma-separated
+   box-shadow list). Full content width, stage floor at 50vh so the model
+   reads at a usable size regardless of report length above it. */
+.cv-stage {
+  position: relative;
+  width: 100%;
+  min-height: 50vh;
+  height: clamp(50vh, 60vh, 720px);
+  overflow: hidden;
+  background: var(--ss-cell-bg);
+  border: var(--ss-hairline-w) solid var(--ss-border-strong);
+  border-radius: var(--ss-radius-lg);
+  box-shadow: var(--ss-edge-lit), var(--ss-shadow-float);
 }
 .cv-viewer {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 220px;
-  background: var(--ss-cell-bg);
-  border: var(--ss-hairline-w) solid var(--ss-border);
+  height: 100%;
 }
-.cv-label {
+/* Overlay (ORIGINAL): clipped to the left of the divider, pointer-blind, and
+   opaque — an opaque background stops the master compositing through as a
+   ghost during the rAF-driven camera catch-up (see CompareViewer.tsx). */
+.cv-viewer-mirror {
+  pointer-events: none;
+  background: var(--ss-cell-bg);
+  clip-path: inset(0 calc(100% - var(--wipe, 50%)) 0 0);
+}
+
+.cv-kicker {
+  position: absolute;
+  top: var(--ss-space-3);
+  z-index: 2;
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-kicker);
+  font-weight: var(--ss-w-semibold);
   letter-spacing: var(--ss-tracking-kicker);
   text-transform: uppercase;
-  color: var(--ss-text-label);
+  color: var(--ss-text-muted);
+  pointer-events: none;
 }
-/* "After" is the live artifact → accent-as-text. */
-.cv-label-after {
+.cv-kicker-original {
+  left: var(--ss-space-4);
+}
+/* Optimized is the live artifact → accent-as-text. */
+.cv-kicker-optimized {
+  right: var(--ss-space-4);
   color: var(--ss-accent-text);
 }
+
+/* Divider: amber line + grab strip, positioned from the same --wipe custom
+   property the overlay's clip-path reads, so one write drives both. */
+.cv-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--wipe, 50%);
+  width: 32px;
+  translate: -50% 0;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cv-handle-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  translate: -50% 0;
+  background: var(--ss-accent);
+}
+.cv-handle-knob {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ss-radius-pill);
+  background: var(--ss-accent);
+  color: var(--ss-accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ss-font-mono);
+  font-size: 12px;
+  font-weight: var(--ss-w-bold);
+  user-select: none;
+  transition: box-shadow 0.15s ease;
+}
+.cv-handle:hover .cv-handle-knob,
+.cv-handle:focus-visible .cv-handle-knob {
+  box-shadow: var(--ss-glow-live);
+}
+.cv-handle:focus-visible {
+  outline: 2px solid var(--ss-focus-ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cv-handle-knob {
+    transition: none;
+  }
+}
+
 .cv-loading {
   font-family: var(--ss-font-mono);
   font-size: var(--ss-fs-small);
-  color: var(--ss-text-faint);
-}
-@media (max-width: 900px) {
-  .compare {
-    grid-template-columns: 1fr;
-  }
+  color: var(--ss-text-muted);
 }
 
 .rp-reset {

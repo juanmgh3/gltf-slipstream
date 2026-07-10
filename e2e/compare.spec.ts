@@ -42,4 +42,9 @@ test('before/after viewers render and the optimized GLB re-decodes', async ({ pa
   expect(pageErrors).toEqual([]);
   // Privacy/offline: every DRACO decoder fetch was same-origin, none from a CDN.
   expect([...decoderHosts]).toEqual(['localhost']);
+
+  // Wipe stage side labels — mono ORIGINAL/OPTIMIZED, not "Before"/"After".
+  const stage = page.getByTestId('compare');
+  await expect(stage).toContainText(/original/i);
+  await expect(stage).toContainText(/optimized/i);
 });

@@ -9,6 +9,8 @@ declare module 'preact' {
         src?: string;
         alt?: string;
         'camera-controls'?: boolean;
+        'min-camera-orbit'?: string;
+        'max-camera-orbit'?: string;
       };
     }
   }
