@@ -1,26 +1,26 @@
 # Slipstream — Brand Kit (raw basics)
 
-Solo lo esencial: tokens, fuentes y logos. Sin componentes, sin frontend.
+Just the essentials: tokens, fonts and logos. No components, no frontend.
 
-## Estructura
+## Structure
 ```
-styles.css              → entrada, hace @import de los 4 tokens
+styles.css              → entry point, @imports the 4 token files
 tokens/
-  fonts.css             → @font-face + @import de las fuentes remotas
+  fonts.css             → @font-face + @import for the remote fonts
   colors.css            → color tokens (dark-first + light)
-  typography.css        → familias, pesos, escala fluida, tracking
-  spacing.css           → espaciado 8px, radios, layout
+  typography.css        → families, weights, fluid scale, tracking
+  spacing.css           → 8px spacing, radii, layout
 assets/
-  fonts/                → Azeret Mono (woff2 variable, self-hosted)
-  logo/                 → icono + lettering (dark / light, SVG)
+  fonts/                → Azeret Mono (variable woff2, self-hosted)
+  logo/                 → icon + lettering (dark / light, SVG)
 ```
 
-## Fuentes
-- **Clash Display** (display) — ITF FFL, closed-source, NO redistribuible.
-  Se carga SOLO por CDN de Fontshare (ya está el `@import` en `tokens/fonts.css`).
-  No hay woff2 en el kit a propósito.
-- **Mona Sans** (body/UI) — se carga por Google Fonts (`@import` en `tokens/fonts.css`).
-- **Azeret Mono** (mono) — OFL, self-hosted en `assets/fonts/`.
+## Fonts
+- **Clash Display** (display) — ITF FFL, closed-source, NOT redistributable.
+  Loaded ONLY via the Fontshare CDN (the `@import` in `tokens/fonts.css`).
+  There is deliberately no woff2 for it in the kit.
+- **Mona Sans** (body/UI) — loaded via Google Fonts (`@import` in `tokens/fonts.css`).
+- **Azeret Mono** (mono) — OFL, self-hosted in `assets/fonts/`.
 
-## Uso
-Enlaza `styles.css` y consume las variables `--ss-*`. Nada más.
+## Usage
+Link `styles.css` and consume the `--ss-*` variables. Nothing else.

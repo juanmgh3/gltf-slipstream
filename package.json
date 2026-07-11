@@ -1,10 +1,28 @@
 {
   "name": "gltf-slipstream",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Client-side, in-browser glTF/GLB optimizer (DRACO + WebP).",
+  "description": "Client-side, in-browser glTF/GLB optimizer (DRACO + WebP). Nothing leaves your machine.",
   "license": "MIT",
+  "author": "juanmgh3 (https://github.com/juanmgh3)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanmgh3/gltf-slipstream.git"
+  },
+  "homepage": "https://github.com/juanmgh3/gltf-slipstream#readme",
+  "bugs": "https://github.com/juanmgh3/gltf-slipstream/issues",
+  "keywords": [
+    "gltf",
+    "glb",
+    "draco",
+    "webp",
+    "3d",
+    "optimizer",
+    "compression",
+    "browser",
+    "client-side"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
