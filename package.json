@@ -32,6 +32,9 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "node scripts/copy-draco-wasm.mjs"
   },
+  "overrides": {
+    "sharp": "^0.35.0"
+  },
   "dependencies": {
     "@astrojs/preact": "^6.0.1",
     "@gltf-transform/core": "^4.4.0",
